@@ -1,6 +1,8 @@
 import dotenv from 'dotenv'
 import connectDb from './mongodb/connect'
 import app from './app'
+import { pool } from './db/connectPostgre'
+
 
 dotenv.config()
 
@@ -13,8 +15,10 @@ const startServer = async () => {
             throw new Error("MONGODB_URL is not defined");
         }
 
-
         await connectDb(MONGO_URL)
+
+        await pool.query("SELECT 1")
+        console.log("PostgreSQL ready")
 
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`)
