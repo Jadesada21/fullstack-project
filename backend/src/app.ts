@@ -12,4 +12,5 @@ app.use(express.json({ limit: "50mb" }))
 app.use('/api', routes)
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
+
 export default app
