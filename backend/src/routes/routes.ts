@@ -1,11 +1,14 @@
 import { Router, Request, Response } from "express";
-import customerController = require('../controller/customerController')
-
-const {
+import {
     getAllCustomer,
     createCustomer,
-    getCustomerById
-} = customerController
+    getCustomerById,
+    updateCustomerById,
+    updateAddressCustomerById,
+    addCustomerAddressById,
+    getAllCustomerAddress
+} from '../controller/customerController'
+
 
 const router = Router();
 
@@ -103,7 +106,6 @@ router.route('/customers')
     .get(getAllCustomer)
     .post(createCustomer)
 
-
 /**
  * @swagger
  * /api/customers/:id
@@ -145,6 +147,16 @@ router.route('/customers')
 
 router.route('/customers/:id')
     .get(getCustomerById)
+    .patch(updateCustomerById)
+
+router.route('/customer_addresses')
+    .get(getAllCustomerAddress)
+
+router.route('/customers/:customerId/addresses')
+    .post(addCustomerAddressById)
+
+router.route('/customers/:customerId/addresses/:id')
+    .patch(updateAddressCustomerById)
 
 
 export default router;
