@@ -1,29 +1,18 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import {
     getAllCustomer,
     createCustomer,
     getCustomerById,
     updateCustomerById,
-    updateAddressCustomerById,
-    addCustomerAddressById,
-    getAllCustomerAddress
 } from '../controller/customerController'
 
+import {
+    addCustomerAddressById,
+    updateAddressCustomerById
+} from '../controller/addressController'
 
 const router = Router();
 
-/**
- * @swagger
- * /api:
- *   get:
- *     summary: Health check
- *     responses:
- *       200:
- *         description: API is running
- */
-router.get("/", (req, res) => {
-    res.json({ message: "API is running 🚀" })
-})
 
 /**
  * @swagger
@@ -102,7 +91,7 @@ router.get("/", (req, res) => {
  *         description: Server error
  */
 
-router.route('/customers')
+router.route('/')
     .get(getAllCustomer)
     .post(createCustomer)
 
@@ -145,18 +134,16 @@ router.route('/customers')
  *         description: Server error
  */
 
-router.route('/customers/:id')
+router.route('/:id')
     .get(getCustomerById)
     .patch(updateCustomerById)
 
-router.route('/customer_addresses')
-    .get(getAllCustomerAddress)
 
-router.route('/customers/:customerId/addresses')
+router.route('/:customerId/addresses')
     .post(addCustomerAddressById)
 
-router.route('/customers/:customerId/addresses/:id')
-    .patch(updateAddressCustomerById)
 
+router.route('/:customerId/addresses/:id')
+    .patch(updateAddressCustomerById)
 
 export default router;

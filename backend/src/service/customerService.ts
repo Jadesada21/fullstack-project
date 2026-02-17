@@ -4,17 +4,14 @@ import {
     CreateCustomerInput,
     CustomerResponse,
     UpdateCustomerPhoneInput,
-    UpdateCustomerAddressInput,
-    AddCustomerAddressByIdInput,
-    CustomerAddressResponse
 } from '../types/customer.type'
+
 
 export const getAllCustomerService = async () => {
     try {
         const sql = `select 
         id,
         username,
-        password,
         email,
         first_name,
         last_name,
@@ -37,7 +34,9 @@ export const createCustomerService = async (
     body: CreateCustomerInput
 ): Promise<CustomerResponse> => {
     try {
-        const { username, password, email, first_name, last_name, role, phone_num } = body
+        const { username, password, email, first_name, last_name, phone_num } = body
+
+        const defaultRole = "customer"
 
         const checkUser = await pool.query(
             `Select id from customers where username =$1`,
@@ -61,11 +60,11 @@ export const createCustomerService = async (
 
         const responese = await pool.query(
             `insert into customers
-        (username , password ,email ,first_name , last_name , role, phone_num)
+        (username , password ,email ,first_name , last_name ,role , phone_num)
         values($1,$2,$3,$4,$5,$6,$7)
         returning 
-        id ,username , password , email , first_name , last_name , role , phone_num`,
-            [username, hashedPassword, email, first_name, last_name, role, phone_num]
+        id ,username  , email , first_name , last_name  , role ,phone_num`,
+            [username, hashedPassword, email, first_name, last_name, defaultRole, phone_num]
         )
 
         return responese.rows[0]
@@ -73,7 +72,6 @@ export const createCustomerService = async (
         console.error('createCustomerService error', err)
         throw err
     }
-
 }
 
 export const getCustomerByIdService = async (id: number) => {
@@ -109,79 +107,3 @@ export const updateCustomerByIdService = async (id: number, body: UpdateCustomer
     }
 }
 
-export const getAllCustomerAddressService = async () => {
-    try {
-        const sql = ` select
-        id,
-        customer_id,
-        country,
-        address_line,
-        subdistrict,
-        district,
-        province,
-        postal_code,
-        is_default,
-        created_at,
-        updated_at
-        from customer_addresses 
-        order by id desc`
-        const response = await pool.query(sql)
-
-        return response.rows
-    } catch (err) {
-        console.error('getAllCustomerAddressService error', err)
-        throw err
-    }
-}
-
-export const addCustomerAddressByIdService = async (customerId: number, body: AddCustomerAddressByIdInput): Promise<CustomerAddressResponse> => {
-    try {
-        const { address_line, country, province, district, subdistrict, postal_code, is_default } = body
-
-        const responese = await pool.query(
-            `insert into customer_addresses
-    (customer_id , address_line ,country, province, district, subdistrict, postal_code , is_default)
-    values($1,$2,$3,$4,$5,$6,$7,$8)
-    returning 
-    id, customer_id , address_line ,country, province, district, subdistrict, postal_code , is_default , created_at ,updated_at `,
-            [customerId, address_line, country, province, district, subdistrict, postal_code, is_default]
-        )
-
-        return responese.rows[0]
-    } catch (err) {
-        console.error('addCustomerAddressByIdService error', err)
-        throw err
-    }
-}
-
-
-export const updateAddressCustomerByIdService = async (customerId: number, id: number, body: UpdateCustomerAddressInput) => {
-    try {
-        const fields: string[] = []
-        const values: any[] = []
-        let index = 1
-
-        for (const key in body) {
-            fields.push(`${key} = $${index}`)
-            values.push(body[key as keyof UpdateCustomerAddressInput])
-            index++
-        }
-
-        if (fields.length === 0) return null
-
-        const sql = `update customer_addresses
-        set ${fields.join(', ')},
-        updated_at = current_timestamp
-        where id = $${index}
-        and customer_id = $${index + 1}
-        returning *`
-
-        values.push(id, customerId)
-
-        const response = await pool.query(sql, values)
-        return response.rows[0] || null
-    } catch (err) {
-        console.error('updateAddressCustomerByIdService error', err)
-        throw err
-    }
-}

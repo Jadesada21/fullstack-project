@@ -1,5 +1,5 @@
 import express, { Application } from 'express'
-import routes from './routes/routes'
+import routes from './routes/index'
 import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './swagger'
