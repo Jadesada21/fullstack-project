@@ -108,26 +108,51 @@ export const updateCustomerByIdService = async (id: number, body: UpdateCustomer
 // *************************** ADDRESS
 
 export const createCustomerAddressByIdService = async (customerId: number, body: AddCustomerAddressByIdInput): Promise<CustomerAddressResponse> => {
-    const customer = await pool.query(
-        `select id from customers where id = $1`,
-        [customerId]
-    )
+    const client = await pool.connect()
+    try {
+        await client.query("BEGIN")
 
-    if (customer.rowCount === 0) {
-        throw new AppError("Customer not found", 404)
+        // check customer
+        const customer = await client.query(
+            `select id from customers where id = $1`,
+            [customerId]
+        )
+
+        if (customer.rowCount === 0) {
+            throw new AppError("Customer not found", 404)
+        }
+
+        const { address_line, country, province, district, subdistrict, postal_code, is_default } = body
+
+        // if default set default
+        if (is_default) {
+            await client.query(
+                `update customer_addresses
+                set is_default = false
+                where customer_id = $1`,
+                [customerId]
+            )
+        }
+
+        // insert
+        const response = await client.query(
+            `insert into customer_addresses
+            (customer_id , address_line ,country, province, district, subdistrict, postal_code , is_default)
+            values($1,$2,$3,$4,$5,$6,$7,$8)
+            returning 
+            id, customer_id , address_line ,country, province, district, subdistrict, postal_code , is_default , created_at ,updated_at `,
+            [customerId, address_line, country, province, district, subdistrict, postal_code, is_default]
+        )
+
+        await client.query("COMMIT")
+        return response.rows[0]
+
+    } catch (err) {
+        await client.query("ROLLBACK")
+        throw err
+    } finally {
+        client.release()
     }
-
-    const { address_line, country, province, district, subdistrict, postal_code, is_default } = body
-
-    const response = await pool.query(
-        `insert into customer_addresses
-    (customer_id , address_line ,country, province, district, subdistrict, postal_code , is_default)
-    values($1,$2,$3,$4,$5,$6,$7,$8)
-    returning 
-    id, customer_id , address_line ,country, province, district, subdistrict, postal_code , is_default , created_at ,updated_at `,
-        [customerId, address_line, country, province, district, subdistrict, postal_code, is_default]
-    )
-    return response.rows[0]
 }
 
 
@@ -156,7 +181,7 @@ export const updateAddressCustomerByIdService = async (customerId: number, id: n
     const response = await pool.query(sql, values)
 
     if (response.rowCount === 0) {
-        throw new AppError("Customer not found", 404)
+        throw new AppError("Address not found", 404)
     }
     return response.rows[0]
 }
