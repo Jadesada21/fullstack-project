@@ -1,8 +1,7 @@
 import { Router } from "express";
 
 import {
-    updateAddressCustomerById,
-    getAllCustomerAddress,
+    getAllCustomerAddress
 } from '../controller/addressController'
 
 const router = Router()
