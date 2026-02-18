@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import {
     getAllCustomerService,
     createCustomerService,
@@ -17,114 +17,107 @@ import {
     AddCustomerAddressByIdInput,
     UpdateCustomerAddressInput
 } from '../types/address.type'
+import { AppError } from '../util/AppError'
 
 
 
-export const getAllCustomer = async (req: Request, res: Response) => {
+export const getAllCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const customer = await getAllCustomerService()
 
         return res.status(200).json({ status: "Success", data: customer })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }
 
 
-export const createCustomer = async (req: Request<{}, {}, CreateCustomerInput>, res: Response) => {
+export const createCustomer = async (req: Request<{}, {}, CreateCustomerInput>, res: Response, next: NextFunction) => {
     try {
 
         const { username, password, email, first_name, last_name, role, phone_num } = req.body
 
         if (!username || !password || !email || !first_name || !last_name || !phone_num) {
-            return res.status(400).json({ status: "Error", message: "Missing required fields" })
+            throw new AppError("Missing required field", 400)
         }
 
         const newCustomer = await createCustomerService(req.body)
         return res.status(201).json({ status: "Success", data: newCustomer })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Error", messsage: err.message })
+
+    } catch (err) {
+        next(err)
     }
 }
 
 
-export const getCustomerById = async (req: Request, res: Response) => {
+export const getCustomerById = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
         const id = Number(req.params.id)
         if (isNaN(id)) {
-            return res.status(400).json({ status: "Error", message: "Invalid customer ID" })
+            throw new AppError("Invalid customer ID", 400)
         }
 
         const data = await getCustomerByIdService(id)
-        if (!data) {
-            return res.status(400).json({ status: "Error", message: "Not Found Customer" })
-        }
 
         return res.status(200).json({ status: "Success", data: data })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }
 
 
-export const updateCustomerById = async (req: Request, res: Response) => {
+export const updateCustomerById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id)
-        const { phone_num } = req.body
-        console.log("body", req.body)
-        console.log("phone", phone_num)
+        if (isNaN(id)) {
+            throw new AppError("Invalid customer ID", 400)
+        }
 
+        const { phone_num } = req.body
         if (!phone_num) {
-            return res.status(400).json({ status: "Error", message: "Phone Number is required" })
+            throw new AppError("Phone Number is required", 400)
         }
         const responese = await updateCustomerByIdService(id, { phone_num })
 
-        if (!responese) {
-            return res.status(400).json({ status: "Error", message: "Customer not found" })
-        }
-
         return res.status(200).json({ status: "Success", data: responese })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }
 
 // ****************************** ADDRESS
 
-export const addCustomerAddressById = async (req: Request<{ customerId: string; }, {}, AddCustomerAddressByIdInput>, res: Response) => {
+export const addCustomerAddressById = async (req: Request<{ customerId: string; }, {}, AddCustomerAddressByIdInput>, res: Response, next: NextFunction) => {
     try {
         const customerId = Number(req.params.customerId)
 
         if (isNaN(customerId)) {
-            return res.status(400).json({ status: "Failed", message: "Invalid customerId" })
+            throw new AppError("Invalid customerId", 400)
         }
-        const { address_line, country, province, district, subdistrict, postal_code, is_default } = req.body
 
-        if (!address_line || !country || !province! || !district || !subdistrict || !postal_code) {
-            return res.status(400).json({ status: "Error", message: "Missing required fields" })
+        const { address_line, country, province, district, subdistrict, postal_code, is_default } = req.body
+        if (!address_line || !country || !province || !district || !subdistrict || !postal_code) {
+            throw new AppError("Missing required field", 400)
         }
 
         const newAddress = await createCustomerAddressByIdService(customerId, req.body)
         return res.status(201).json({ status: "Success", data: newAddress })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }
 
 
-export const updateAddressCustomerById = async (req: Request<{ customerId: string; id: number }, {}, UpdateCustomerAddressInput>, res: Response) => {
+export const updateAddressCustomerById = async (req: Request<{ customerId: string; id: number }, {}, UpdateCustomerAddressInput>, res: Response, next: NextFunction) => {
     try {
         const customerId = Number(req.params.customerId)
         const id = Number(req.params.id)
 
         const updated = await updateAddressCustomerByIdService(customerId, id, req.body)
 
-        if (!updated) {
-            return res.status(400).json({ status: "Error", message: "Address not found" })
-        }
-
         res.status(200).json({ status: "Success", data: updated })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }

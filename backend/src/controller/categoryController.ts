@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 import {
     getAllCategoryService,
@@ -9,45 +9,38 @@ import {
 import {
     CreateCategoryInput
 } from '../types/category.type'
+import { AppError } from '../util/AppError'
 
-export const getAllCategory = async (req: Request, res: Response) => {
+export const getAllCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const category = await getAllCategoryService()
         return res.status(200).json({ status: "Success", data: category })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }
 
 
-export const createCategory = async (req: Request<{}, {}, CreateCategoryInput>, res: Response) => {
+export const createCategory = async (req: Request<{}, {}, CreateCategoryInput>, res: Response, next: NextFunction) => {
     try {
-        const { name } = req.body
-
-        if (!name) {
-            return res.status(400).json({ status: "Error", message: "Categories name required" })
-        }
-
         const Newcategory = await createCategoryService(req.body)
         return res.status(201).json({ status: "Success", data: Newcategory })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }
 
-export const getCategoryById = async (req: Request, res: Response) => {
+export const getCategoryById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id)
         if (isNaN(id)) {
-            return res.status(400).json({ status: "Error", message: "Invalid customer ID" })
+            throw new AppError("Invalid categories Id", 400)
         }
 
         const data = await getCategoryByIdService(id)
-        if (!data) {
-            return res.status(400).json({ status: "Error", message: "Not Found categories" })
-        }
+
         return res.status(200).json({ status: "Success", data: data })
-    } catch (err: any) {
-        return res.status(400).json({ status: "Failed", message: err.message })
+    } catch (err) {
+        next(err)
     }
 }
