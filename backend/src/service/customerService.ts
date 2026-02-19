@@ -4,8 +4,6 @@ import { AppError } from '../util/AppError'
 
 
 import {
-    CreateCustomerInput,
-    CustomerResponse,
     UpdateCustomerPhoneInput,
 } from '../types/customer.type'
 
@@ -34,46 +32,7 @@ export const getAllCustomerService = async () => {
     return response.rows
 }
 
-export const createCustomerService = async (
-    body: CreateCustomerInput
-): Promise<CustomerResponse> => {
 
-    const { username, password, email, first_name, last_name, phone_num } = body
-
-    const defaultRole = "customer"
-
-    const checkUser = await pool.query(
-        `Select id from customers where username =$1`,
-        [username]
-    )
-
-    if (checkUser.rowCount && checkUser.rowCount > 0) {
-        throw new AppError("Username already exists", 409)
-    }
-
-    const checkEmail = await pool.query(
-        `Select id from customers where email =$1`,
-        [email]
-    )
-
-    if (checkEmail.rowCount && checkEmail.rowCount > 0) {
-        throw new AppError("Email already exists", 409)
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10)
-
-    const responese = await pool.query(
-        `insert into customers
-        (username , password ,email ,first_name , last_name ,role , phone_num)
-        values($1,$2,$3,$4,$5,$6,$7)
-        returning 
-        id ,username  , email , first_name , last_name  , role ,phone_num`,
-        [username, hashedPassword, email, first_name, last_name, defaultRole, phone_num]
-    )
-
-    return responese.rows[0]
-
-}
 
 export const getCustomerByIdService = async (id: number) => {
     const sql = `Select * from customers where id = $1`

@@ -56,7 +56,6 @@ export const getProductByIdService = async (id: number) => {
 
 
 export const toggleProductActiveService = async (id: number) => {
-
     const response = await pool.query(`update products set is_active = not is_active
         where id = $1
         RETURNING is_active`,

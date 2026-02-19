@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
     getAllCustomer,
-    createCustomer,
     getCustomerById,
     updateCustomerById,
     addCustomerAddressById,
@@ -14,7 +13,7 @@ const router = Router();
 
 router.route('/')
     .get(getAllCustomer)
-    .post(createCustomer)
+
 
 
 router.route('/:id')

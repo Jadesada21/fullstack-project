@@ -8,6 +8,7 @@ create type source as enum ('order' , 'promo');
 
 create type roast_level as enum ('light','medium','dark');
 
+create type stock_type as enum ('in','out');
 
 CREATE TABLE customers (
     id SERIAL PRIMARY KEY, 
@@ -108,12 +109,13 @@ foreign key (customer_id) references customers(id) on delete restrict
 
 create table order_items (
 id serial primary key ,
-order_id int not null,
-product_id int not null,
+order_id int not null ,
+product_id int not null ,
 quantity int not null check(quantity >0),
 price int not null check(price >= 0),
 foreign key (order_id) references orders(id) on delete cascade,
-foreign key (product_id) references products(id) on delete restrict
+foreign key (product_id) references products(id) on delete restrict,
+unique (order_id , product_id)
 );
 
 
@@ -121,7 +123,7 @@ create table stock_movement (
 id serial primary key,
 product_id int not null ,
 order_id int ,
-quantity int not null,
+quantity stock_type not null,
 created_at timestamp default current_timestamp not null,
 foreign key (product_id) references products(id) on delete restrict,
 foreign key (order_id) references orders(id) on delete set null
@@ -156,7 +158,7 @@ product_id int not null,
 image_url varchar(500) not null,
 is_primary boolean default false,
 sort_order int default 0,
-created_at timestamp default current_timestamp not null
+created_at timestamp default current_timestamp not null,
 foreign key (product_id) references products(id) on delete cascade
 )
 
@@ -165,8 +167,8 @@ id serial primary key,
 reward_id int not null,
 image_url varchar(500) not null,
 is_primary boolean default false,
-sort_order int default 0
-created_at timestamp default current_timestamp not null
+sort_order int default 0,
+created_at timestamp default current_timestamp not null,
 foreign key (reward_id) references rewards(id) on delete cascade
 )
 

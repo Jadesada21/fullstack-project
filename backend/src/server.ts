@@ -1,9 +1,9 @@
 import dotenv from 'dotenv'
+dotenv.config()
 import app from './app'
 import { pool } from './db/connectPostgre'
 
 
-dotenv.config()
 
 const startServer = async () => {
     try {

@@ -42,7 +42,7 @@ export const createProduct = async (req: Request<{}, {}, CreateProductInput>, re
 
         const validRoastLevels: RoastLevel[] = ['light', 'medium', 'dark']
 
-        if (!validRoastLevels) {
+        if (!validRoastLevels.includes(roast_level)) {
             throw new AppError("Invalid Roast Level", 400)
         }
         const newProduct = await createProductService(req.body)
