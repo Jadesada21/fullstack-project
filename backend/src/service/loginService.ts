@@ -12,21 +12,21 @@ import {
 
 export const loginService = async (username: string, password: string): Promise<LoginResponse> => {
 
-    const customers = await pool.query(
+    const result = await pool.query(
         `select id , username ,password, role, is_active from customers where username = $1`,
         [username]
     )
-    if (customers.rowCount === 0) {
+    if (result.rowCount === 0) {
         throw new AppError("Invalid credentials", 401)
     }
 
-    const customer = customers.rows[0]
+    const customer = result.rows[0]
 
     if (!customer.is_active) {
         throw new AppError("Account is inactive", 403)
     }
 
-    const isMatch = await bcrypt.compare(password, customer.rows[0].password)
+    const isMatch = await bcrypt.compare(password, customer.password)
 
     if (!isMatch) {
         throw new AppError("Invalid credentials", 401)
@@ -34,8 +34,8 @@ export const loginService = async (username: string, password: string): Promise<
 
     const token = jwt.sign(
         {
-            id: customer.rows[0].id,
-            role: customer.rows[0].role
+            id: customer.id,
+            role: customer.role
         },
         process.env.JWT_SECRET as string,
         {
