@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 
 import {
     getAllCustomerAddressService
-} from '../service/addressService'
+} from '../service/address.Service'
 
 
 export const getAllCustomerAddress = async (req: Request, res: Response, next: NextFunction) => {

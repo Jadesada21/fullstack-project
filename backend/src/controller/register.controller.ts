@@ -4,7 +4,7 @@ import { AppError } from '../util/AppError'
 import { CreateCustomerInput } from "../types/customer.type"
 
 
-import { createCustomerService } from '../service/registerService'
+import { createCustomerService } from '../service/register.service'
 
 
 export const createCustomer = async (req: Request<{}, {}, CreateCustomerInput>, res: Response, next: NextFunction) => {

@@ -5,7 +5,7 @@ import {
     updateCustomerById,
     addCustomerAddressById,
     updateAddressCustomerById
-} from '../controller/customerController'
+} from '../controller/customer.controller'
 
 
 const router = Router();

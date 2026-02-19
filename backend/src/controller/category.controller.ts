@@ -4,7 +4,7 @@ import {
     getAllCategoryService,
     createCategoryService,
     getCategoryByIdService
-} from '../service/categoryService'
+} from '../service/category.service'
 
 import {
     CreateCategoryInput

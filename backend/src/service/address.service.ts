@@ -1,4 +1,4 @@
-import { pool } from '../db/connectPostgre'
+import { pool } from '../db/connectPostgre.repository'
 
 
 export const getAllCustomerAddressService = async () => {

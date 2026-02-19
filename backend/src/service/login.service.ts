@@ -1,4 +1,4 @@
-import { pool } from '../db/connectPostgre'
+import { pool } from '../db/connectPostgre.repository'
 import jwt from 'jsonwebtoken'
 import { AppError } from '../util/AppError'
 import bcrypt from 'bcrypt'

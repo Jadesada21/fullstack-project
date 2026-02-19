@@ -5,7 +5,7 @@ import {
     createRewardService,
     getRewardByIdService,
     toggleRewardActiveService
-} from '../service/rewardService'
+} from '../service/reward.service'
 
 import {
     CreateRewardInput,

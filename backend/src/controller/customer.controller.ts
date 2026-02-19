@@ -5,7 +5,7 @@ import {
     updateCustomerByIdService,
     updateAddressCustomerByIdService,
     createCustomerAddressByIdService,
-} from '../service/customerService'
+} from '../service/customer.service'
 
 
 

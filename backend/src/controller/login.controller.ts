@@ -3,7 +3,7 @@ import { AppError } from "../util/AppError";
 
 import {
     loginService
-} from '../service/loginService'
+} from '../service/login.service'
 
 
 

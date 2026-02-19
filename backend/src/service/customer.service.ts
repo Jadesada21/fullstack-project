@@ -1,4 +1,4 @@
-import { pool } from '../db/connectPostgre'
+import { pool } from '../db/connectPostgre.repository'
 import bcrypt from 'bcrypt'
 import { AppError } from '../util/AppError'
 

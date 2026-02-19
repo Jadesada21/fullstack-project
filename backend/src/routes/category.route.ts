@@ -4,7 +4,7 @@ import {
     getAllCategory,
     createCategory,
     getCategoryById
-} from '../controller/categoryController'
+} from '../controller/category.controller'
 
 const router = Router()
 

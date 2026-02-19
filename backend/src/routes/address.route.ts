@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import {
     getAllCustomerAddress
-} from '../controller/addressController'
+} from '../controller/address.controller'
 
 const router = Router()
 

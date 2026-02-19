@@ -5,7 +5,7 @@ import {
     createProductService,
     getProductByIdService,
     toggleProductActiveService
-} from '../service/productService'
+} from '../service/product.service'
 
 import {
     CreateProductInput,

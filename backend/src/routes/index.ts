@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import customerRoute from './customerRoute'
-import categoryRoute from './categoryRoute'
-import addressRoute from './addressRoute'
-import productsRoute from './productsRoute'
-import loginRoute from './loginRoute'
-import logoutRoute from './logoutRoute'
-import registerRoute from './registerRoute'
+import customerRoute from './customer.route'
+import categoryRoute from './category.route'
+import addressRoute from './address.route'
+import productsRoute from './products.route'
+import loginRoute from './login.route'
+import logoutRoute from './logout.route'
+import registerRoute from './register.route'
 import { authenticate } from '../middleware/authenticate'
 const router = Router()
 

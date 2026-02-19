@@ -5,7 +5,7 @@ import {
     createReward,
     getRewardById,
     toggleRewardActive
-} from '../controller/rewardController'
+} from '../controller/reward.controller'
 
 import { authorize } from '../middleware/authorize'
 

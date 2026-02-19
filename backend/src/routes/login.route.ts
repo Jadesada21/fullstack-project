@@ -1,12 +1,12 @@
 import { Router } from 'express'
 
 import {
-    logout
-} from '../controller/logoutController'
+    login
+} from '../controller/login.controller'
 
 const router = Router()
 
 router.route('/')
-    .post(logout)
+    .post(login)
 
 export default router
