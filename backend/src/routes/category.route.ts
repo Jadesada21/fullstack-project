@@ -3,7 +3,9 @@ import { Router } from 'express'
 import {
     getAllCategory,
     createCategory,
-    getCategoryById
+    getCategoryById,
+    getCategoryProductsById,
+    getCategoryRewardsById
 } from '../controller/category.controller'
 
 const router = Router()
@@ -15,5 +17,11 @@ router.route('/')
 
 router.route('/:id')
     .get(getCategoryById)
+
+router.route('/:id/products')
+    .get(getCategoryProductsById)
+
+router.route('/:id/rewards')
+    .get(getCategoryRewardsById)
 
 export default router

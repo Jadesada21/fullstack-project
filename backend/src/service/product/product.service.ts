@@ -1,10 +1,10 @@
-import { pool } from '../db/connectPostgre.repository'
-import { AppError } from '../util/AppError'
+import { pool } from '../../db/connectPostgre.repository'
+import { AppError } from '../../util/AppError'
 
 import {
     ProductResponse,
     CreateProductInput
-} from '../types/product.type'
+} from '../../types/product.type'
 
 export const getAllProductService = async () => {
     const sql = ` select 

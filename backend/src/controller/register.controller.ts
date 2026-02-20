@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
 import { AppError } from '../util/AppError'
 
-import { CreateCustomerInput } from "../types/customer.type"
+import { CreateUsersInput } from "../types/users.type"
 
 
-import { createCustomerService } from '../service/register.service'
+import { createUsersService } from '../service/register.service'
 
 
-export const createCustomer = async (req: Request<{}, {}, CreateCustomerInput>, res: Response, next: NextFunction) => {
+export const createUsers = async (req: Request<{}, {}, CreateUsersInput>, res: Response, next: NextFunction) => {
     try {
 
         const { username, password, email, first_name, last_name, role, phone_num } = req.body
@@ -16,7 +16,7 @@ export const createCustomer = async (req: Request<{}, {}, CreateCustomerInput>, 
             throw new AppError("Missing required field", 400)
         }
 
-        const newCustomer = await createCustomerService(req.body)
+        const newCustomer = await createUsersService(req.body)
         return res.status(201).json({ status: "Success", data: newCustomer })
 
     } catch (err) {

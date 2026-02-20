@@ -1,6 +1,6 @@
 export type Role = "admin" | "customer"
 
-export interface CreateCustomerInput {
+export interface CreateUsersInput {
     username: string
     password: string
     email: string
@@ -10,10 +10,9 @@ export interface CreateCustomerInput {
     phone_num: string
 }
 
-export interface CustomerResponse {
+export interface UsersResponse {
     id: number
     username: string
-    password: string
     email: string
     first_name: string
     last_name: string
@@ -25,7 +24,7 @@ export interface CustomerResponse {
     updated_at: string
 }
 
-export interface UpdateCustomerPhoneInput {
+export interface UpdateUsersPhoneInput {
     phone_num: string
 }
 

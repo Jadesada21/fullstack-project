@@ -1,10 +1,14 @@
-import { Request } from "express"
+import { Role } from "./users.type"
 
-declare module "express" {
-    export interface Request {
-        user?: {
-            id: number
-            role: "admin" | "customer"
+declare global {
+    namespace Express {
+        interface Request {
+            user?: {
+                id: number
+                role: Role
+            }
         }
     }
 }
+
+export { }

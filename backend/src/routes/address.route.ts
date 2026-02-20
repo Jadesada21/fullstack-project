@@ -1,14 +1,20 @@
 import { Router } from "express";
 
 import {
-    getAllCustomerAddress
-} from '../controller/address.controller'
+    addUsersAddressById,
+    getAllUsersAddress,
+    updateAddressUsersById,
+} from '../controller/users.controller'
 
-const router = Router()
+const router = Router();
+
 
 router.route('/')
-    .get(getAllCustomerAddress)
+    .get(getAllUsersAddress)
+    .post(addUsersAddressById)
 
 
+router.route('/:id')
+    .patch(updateAddressUsersById)
 
 export default router

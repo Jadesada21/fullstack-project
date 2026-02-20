@@ -5,13 +5,13 @@ import {
     createProductService,
     getProductByIdService,
     toggleProductActiveService
-} from '../service/product.service'
+} from '../../service/product/product.service'
 
 import {
     CreateProductInput,
     RoastLevel
-} from '../types/product.type'
-import { AppError } from '../util/AppError'
+} from '../../types/product.type'
+import { AppError } from '../../util/AppError'
 
 
 

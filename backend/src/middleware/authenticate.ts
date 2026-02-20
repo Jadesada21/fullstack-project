@@ -1,40 +1,33 @@
-import { NextFunction, Request, Response } from 'express'
-import { verifyToken } from "../util/jwt"
-import { AppError } from '../util/AppError'
+import { Request, Response, NextFunction } from "express"
+import jwt from "jsonwebtoken"
+import { AppError } from "../util/AppError"
 
+import { Role } from "../types/users.type"
 
-export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-
-    const token = req.cookies?.token
-
-    if (!token) {
-        return next(new AppError("Invalid token", 401))
-    }
-
-    try {
-        const decoded = verifyToken(token)
-        req.user = decoded as any
-        next()
-    } catch (err) {
-        return next(new AppError("Invalid token", 401))
-    }
+interface JwtPayload {
+    id: number
+    role: Role
 }
 
-//     const authHeader = req.headers.authorization
-//     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-//         return next(new AppError("Unauthorized", 401))
-//     }
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const token = req.cookies.token
 
-//     const token = authHeader.split(" ")[1]
-//     if (!token) {
-//         return res.status(401).json({ message: "Token missing" })
-//     }
+        if (!token) {
+            throw new AppError("Unauthorize", 401)
+        }
 
-//     try {
-//         const decoded = verifyToken(token)
-//         req.user = decoded as any
-//         next()
-//     } catch (err) {
-//         return next(new AppError("Invalid token", 401))
-//     }
-// }
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET!
+        ) as JwtPayload
+
+        req.user = {
+            id: decoded.id,
+            role: decoded.role
+        }
+        next()
+    } catch (err) {
+        next(new AppError("Invalid token", 401))
+    }
+}

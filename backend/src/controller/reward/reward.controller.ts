@@ -5,13 +5,13 @@ import {
     createRewardService,
     getRewardByIdService,
     toggleRewardActiveService
-} from '../service/reward.service'
+} from '../../service/reward/reward.service'
 
 import {
     CreateRewardInput,
-} from '../types/reward.type'
+} from '../../types/reward.type'
 
-import { AppError } from '../util/AppError'
+import { AppError } from '../../util/AppError'
 
 
 
@@ -26,21 +26,18 @@ export const getAllReward = async (req: Request, res: Response, next: NextFuncti
 
 export const createReward = async (req: Request<{}, {}, CreateRewardInput>, res: Response, next: NextFunction) => {
     try {
-        const { name, description, short_description, price, stock, category_id } = req.body
+        const { name, short_description, description, stock, points_required, category_id } = req.body
 
         if (
             !name ||
             !short_description ||
             !description ||
-            price === undefined ||
+            points_required === undefined ||
             stock === undefined ||
             category_id === undefined
         ) {
             throw new AppError("Missing required field", 400)
         }
-
-
-
 
         const newReward = await createRewardService(req.body)
         return res.status(201).json({ status: "Success", data: newReward })

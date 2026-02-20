@@ -1,10 +1,10 @@
-import { pool } from '../db/connectPostgre.repository'
-import { AppError } from '../util/AppError'
+import { pool } from '../../db/connectPostgre.repository'
+import { AppError } from '../../util/AppError'
 
 import {
     RewardResponse,
     CreateRewardInput
-} from '../types/reward.type'
+} from '../../types/reward.type'
 
 export const getAllRewardService = async () => {
     const sql = ` select 
@@ -12,7 +12,7 @@ export const getAllRewardService = async () => {
         name,
         description,
         short_description,
-        price,
+        points_required,
         stock,
         category_id,
         is_active,
@@ -29,14 +29,15 @@ export const createRewardService = async (
     body: CreateRewardInput
 ): Promise<RewardResponse> => {
 
-    const { name, description, short_description, price, stock, category_id } = body
+    const { name, description, short_description, stock, points_required, category_id } = body
 
     const response = await pool.query(`
         insert into rewards 
-        (name , description ,short_description, price , stock , category_id  )
-        values($1,$2,$3,$4,$5,$6,
-        returning *`,
-        [name, description, short_description, price, stock, category_id]
+        (name , description ,short_description, stock , points_required , category_id)
+        values ($1,$2,$3,$4,$5,$6)
+        returning *
+        `,
+        [name, description, short_description, stock, points_required, category_id]
     )
     return response.rows[0]
 }

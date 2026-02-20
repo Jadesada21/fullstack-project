@@ -5,7 +5,7 @@ import {
     createProduct,
     getProductById,
     toggleProductActive
-} from '../controller/product.controller'
+} from '../controller/product/product.controller'
 
 import { authorize } from '../middleware/authorize'
 

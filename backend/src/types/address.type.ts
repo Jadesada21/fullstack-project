@@ -1,4 +1,4 @@
-export interface UpdateCustomerAddressInput {
+export interface UpdateUsersAddressInput {
     address_line?: string
     province?: string
     postal_code?: string
@@ -8,7 +8,7 @@ export interface UpdateCustomerAddressInput {
     is_default?: boolean
 }
 
-export interface AddCustomerAddressByIdInput {
+export interface AddUsersAddressByIdInput {
     address_line: string
     province: string
     postal_code: string
@@ -18,7 +18,7 @@ export interface AddCustomerAddressByIdInput {
     is_default: boolean
 }
 
-export interface CustomerAddressResponse {
+export interface UsersAddressResponse {
     id: number
     customer_id: number
     address_line: string

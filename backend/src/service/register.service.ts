@@ -4,16 +4,16 @@ import bcrypt from 'bcrypt'
 
 
 import {
-    CreateCustomerInput,
-    CustomerResponse
-} from "../types/customer.type"
+    CreateUsersInput,
+    UsersResponse
+} from "../types/users.type"
 
 
 
 
-export const createCustomerService = async (
-    body: CreateCustomerInput
-): Promise<CustomerResponse> => {
+export const createUsersService = async (
+    body: CreateUsersInput
+): Promise<UsersResponse> => {
 
     const { username, password, email, first_name, last_name, phone_num } = body
 
@@ -21,7 +21,7 @@ export const createCustomerService = async (
 
     try {
         const response = await pool.query(
-            `insert into customers
+            `insert into users
         (username , password ,email ,first_name , last_name ,role , phone_num)
         values($1,$2,$3,$4,$5,$6,$7)
         returning 
