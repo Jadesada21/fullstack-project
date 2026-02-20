@@ -10,7 +10,7 @@ import {
 import {
     CreateProductInput,
     RoastLevel
-} from '../../types/product.type'
+} from '../../types/product/product.type'
 import { AppError } from '../../util/AppError'
 
 

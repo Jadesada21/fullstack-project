@@ -196,7 +196,8 @@ create index idx_order_items_product on order_items(product_id);
 create index idx_stock_product on stock_movement(product_id);
 create index idx_redeem_customer on redeem_history(customer_id);
 create index idx_promo_usage_customer on promo_code_usage(customer_id);
-
+create index idx_product_images_product_id on product_images(product_id);
+create index idx_reward_images_reward_id on reward_images(reward_id);
 
 สร้างฟังชั่นสำหรับทำ trigger
 
@@ -228,3 +229,22 @@ for each row
 execute function set_updated_at();
 
 
+// 1 id สามารถมี primary ได้แค่ 1
+create unique index uniq_primary_image_per_product
+on product_images(product_id)
+where is_primary = true;
+
+create unique index uniq_primary_image_per_reward
+on reward_images(reward_id)
+where is_primary = true;
+
+
+
+// sort_order ไม่สามารถติด - ได้
+alter table product_images
+add constraint check_sort_order_positive
+check (sort_order >= 0);
+
+alter table reward_images
+add constraint check_sort_order_positive
+check (sort_order >= 0);

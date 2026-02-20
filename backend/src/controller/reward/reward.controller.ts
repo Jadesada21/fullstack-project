@@ -9,7 +9,7 @@ import {
 
 import {
     CreateRewardInput,
-} from '../../types/reward.type'
+} from '../../types/reward/reward.type'
 
 import { AppError } from '../../util/AppError'
 

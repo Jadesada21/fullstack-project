@@ -4,7 +4,7 @@ import { AppError } from '../../util/AppError'
 import {
     RewardResponse,
     CreateRewardInput
-} from '../../types/reward.type'
+} from '../../types/reward/reward.type'
 
 export const getAllRewardService = async () => {
     const sql = ` select 
