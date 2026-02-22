@@ -6,23 +6,45 @@ import {
     CreateProductInput
 } from '../../types/product/product.type'
 
-export const getAllProductService = async () => {
-    const sql = ` select 
-        id,
-        name,
-        description,
-        short_description,
-        price,
-        stock,
-        roast_level,
-        category_id,
-        is_active,
-        created_at,
-        updated_at
-        from products
+export const getAllProductService = async (role?: string) => {
+    if (role === 'admin') {
+        const sql = ` select 
+        p.id,
+        p.name,
+        p.description,
+        p.short_description,
+        p.price,
+        p.stock,
+        p.roast_level,
+        p.category_id,
+        p.is_active,
+        p.created_at,
+        p.updated_at,
+        count(pi.id) as total_images
+        from products p 
+        left join product_images pi
+        on pi.product_id = p.id 
+        group by p.id
+        order by p.created_at desc 
         `
-    const response = await pool.query(sql)
-    return response.rows
+        const response = await pool.query(sql)
+        return response.rows
+    } else {
+        const sql = `
+        select
+        p.id,
+        p.name,
+        p.price,
+        pi.image_url
+        from products p
+        left join product_images pi 
+        on pi.product_id = p.id 
+        and pi.is_primary = true
+        where p.is_active = true
+        order by p.created_at desc`
+        const response = await pool.query(sql)
+        return response.rows
+    }
 }
 
 

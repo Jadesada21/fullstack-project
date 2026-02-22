@@ -17,7 +17,9 @@ import { AppError } from '../../util/AppError'
 
 export const getAllReward = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const reward = await getAllRewardService()
+        const role = req.user?.role
+
+        const reward = await getAllRewardService(role)
         return res.status(200).json({ status: "Success", data: reward })
     } catch (err) {
         next(err)

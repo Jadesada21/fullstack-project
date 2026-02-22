@@ -159,6 +159,7 @@ image_url varchar(500) not null,
 is_primary boolean default false,
 sort_order int default 0,
 created_at timestamp default current_timestamp not null,
+updated_at timestamp default current_timestamp not null,
 foreign key (product_id) references products(id) on delete cascade
 )
 
@@ -169,6 +170,7 @@ image_url varchar(500) not null,
 is_primary boolean default false,
 sort_order int default 0,
 created_at timestamp default current_timestamp not null,
+updated_at timestamp default current_timestamp not null,
 foreign key (reward_id) references rewards(id) on delete cascade
 )
 
@@ -229,6 +231,25 @@ for each row
 execute function set_updated_at();
 
 
+// primary = sort_order 1
+
+alter table product_images
+add constraint primary_must_be_sort_1
+check (
+  (is_primary = true AND sort_order = 1)
+  OR
+  (is_primary = false)
+);
+
+alter table reward_images
+add constraint primary_must_be_sort_1
+check (
+  (is_primary = true AND sort_order = 1)
+  OR
+  (is_primary = false)
+);
+
+
 // 1 id สามารถมี primary ได้แค่ 1
 create unique index uniq_primary_image_per_product
 on product_images(product_id)
@@ -237,6 +258,15 @@ where is_primary = true;
 create unique index uniq_primary_image_per_reward
 on reward_images(reward_id)
 where is_primary = true;
+
+
+// 1 id สามารถมี sort_order 1 เลขได้แค่ตัวเดียวเท่านั้น เลขซ้ำไม่ได้
+
+create unique index uniq_sort_order_per_product
+on product_images(product_id , sort_order)
+
+create unique index uniq_sort_order_per_reward
+on reward_images(reward_id, sort_order);
 
 
 

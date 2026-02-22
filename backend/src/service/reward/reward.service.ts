@@ -6,22 +6,44 @@ import {
     CreateRewardInput
 } from '../../types/reward/reward.type'
 
-export const getAllRewardService = async () => {
-    const sql = ` select 
-        id,
-        name,
-        description,
-        short_description,
-        points_required,
-        stock,
-        category_id,
-        is_active,
-        created_at,
-        updated_at
-        from rewards
+export const getAllRewardService = async (role?: string) => {
+    if (role === 'admin') {
+        const sql = ` select 
+        r.id,
+        r.name,
+        r.description,
+        r.short_description,
+        r.points_required,
+        r.stock,
+        r.category_id,
+        r.is_active,
+        r.created_at,
+        r.updated_at,
+        count(ri.id) as total_images
+        from rewards p 
+        left join reward_images ri
+        on ri.product_id = r.id 
+        group by r.id
+        order by r.created_at desc 
         `
-    const response = await pool.query(sql)
-    return response.rows
+        const response = await pool.query(sql)
+        return response.rows
+    } else {
+        const sql = `
+        select
+        r.id,
+        r.name,
+        r.points_required,
+        ri.image_url
+        from rewards p
+        left join reward_images ri 
+        on ri.product_id = r.id 
+        and ri.is_primary = true
+        where r.is_active = true
+        order by r.created_at desc`
+        const response = await pool.query(sql)
+        return response.rows
+    }
 }
 
 

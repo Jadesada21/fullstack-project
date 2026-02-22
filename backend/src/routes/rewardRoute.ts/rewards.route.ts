@@ -5,9 +5,9 @@ import {
     createReward,
     getRewardById,
     toggleRewardActive
-} from '../controller/reward/reward.controller'
+} from '../../controller/reward/reward.controller'
 
-import { authorize } from '../middleware/authorize'
+import { authorize } from '../../middleware/authorize'
 
 
 const router = Router()

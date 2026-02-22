@@ -5,9 +5,12 @@ import {
     createProduct,
     getProductById,
     toggleProductActive
-} from '../controller/product/product.controller'
+} from '../../controller/product/product.controller'
 
-import { authorize } from '../middleware/authorize'
+import imageProductRoute from './imageProduct.route'
+
+
+import { authorize } from '../../middleware/authorize'
 
 
 const router = Router()
@@ -19,5 +22,10 @@ router.route('/')
 router.route('/:id')
     .get(getProductById)
     .patch(authorize('admin'), toggleProductActive)
+
+
+// ************************ Image_product
+
+router.use('/:product_id/images', imageProductRoute)
 
 export default router

@@ -15,3 +15,19 @@ export interface ProductImageInput {
     is_primary: boolean
     sort_order: number
 }
+
+export interface DeleteProductImagesInput {
+    image_ids: number[]
+}
+
+export interface setPrimaryImageInput {
+    image_id: number
+}
+
+export interface setSortOrderImageInput {
+    image_ids: number[]
+}
+
+export interface UploadImageBody {
+    images: ProductImageInput[]
+}

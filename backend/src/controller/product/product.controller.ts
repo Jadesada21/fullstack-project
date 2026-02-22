@@ -17,7 +17,10 @@ import { AppError } from '../../util/AppError'
 
 export const getAllProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const product = await getAllProductService()
+
+        const role = req.user?.role
+
+        const product = await getAllProductService(role)
         return res.status(200).json({ status: "Success", data: product })
     } catch (err) {
         next(err)
