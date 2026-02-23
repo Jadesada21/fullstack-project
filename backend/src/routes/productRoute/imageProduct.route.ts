@@ -11,10 +11,11 @@ import {
 
 
 import { authorize } from '../../middleware/authorize'
+import upload from '../../middleware/upload'
 
 
 router.route('/')
-    .post(authorize('admin'), uploadImageByProductId)
+    .post(authorize('admin'), upload.array("images", 5), uploadImageByProductId)
     .delete(authorize('admin'), deleteProductImagesByProductId)
 
 router.route('/primary')

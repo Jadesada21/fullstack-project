@@ -2,19 +2,23 @@ import { pool } from '../../db/connectPostgre.repository'
 import { AppError } from '../../util/AppError'
 
 import {
-    ProductImageInput,
+    ProductImageMetaInput,
     ProductImageResponse,
     DeleteProductImagesInput,
     setPrimaryImageInput,
     setSortOrderImageInput
 } from '../../types/product/image.type'
+import cloudinary from '../../config/cloudinary'
 
 
-export const uploadImageProductByIdService = async (product_id: number, images: ProductImageInput[]): Promise<ProductImageResponse[]> => {
+export const uploadImageProductByIdService = async (
+    product_id: number,
+    files: Express.Multer.File[],
+    imagesMeta: ProductImageMetaInput[] = []
+): Promise<ProductImageResponse[]> => {
 
-    if (!images || images.length === 0) {
-        throw new AppError("image are required", 400)
-    }
+    if (!files || files.length === 0)
+        throw new AppError("No files uploaded", 400)
 
     const client = await pool.connect()
 
@@ -30,8 +34,10 @@ export const uploadImageProductByIdService = async (product_id: number, images: 
             throw new AppError("Product not found", 400)
         }
 
+        imagesMeta = Array.isArray(imagesMeta) ? imagesMeta : []
+
         // Check primary
-        const primaryCount = images.filter(i => i.is_primary === true).length
+        const primaryCount = imagesMeta.filter(i => i.is_primary === true).length
         if (primaryCount > 1) {
             throw new AppError("Only one Primary image Allowed", 400)
         }
@@ -42,7 +48,7 @@ export const uploadImageProductByIdService = async (product_id: number, images: 
             [product_id]
         )
 
-        // ถ้ามี primary ใน request ให้ใช้ primary ตัวเดิม
+        // ถ้ามี primary ใหม่ → reset ของเก่า
         if (primaryCount === 1) {
             await client.query(
                 `update product_images
@@ -52,12 +58,7 @@ export const uploadImageProductByIdService = async (product_id: number, images: 
             )
         }
 
-        // ถ้าไม่มี primary เลยทั้ง request และใน DB
-        if (primaryCount === 0 && existingPrimary.rowCount === 0) {
-            images[0].is_primary = true
-        }
-
-        // sort auto run 
+        // get max sort auto run 
         const maxSortResult = await client.query(`
             select coalesce(max(sort_order), 0)as masx
             from product_images
@@ -65,48 +66,59 @@ export const uploadImageProductByIdService = async (product_id: number, images: 
             [product_id]
         )
 
-        let currentSort = Number(maxSortResult.rows[0].max)
-
-        images.forEach(img => {
-            if (img.sort_order === undefined || img.sort_order === null) {
-                currentSort++
-                img.sort_order = currentSort
-            }
-            if (img.is_primary === undefined) {
-                img.is_primary = false
-            }
-        })
+        let currentSort = Number(maxSortResult.rows[0].max) || 0
 
         // เตรียม insert [images]
-        const values: any[] = []
 
-        const placeholders = images.map((img, index) => {
-            const base = index * 4
+        const uploadedResults: ProductImageResponse[] = []
 
-            values.push(
-                product_id,
-                img.image_url,
-                img.is_primary,
-                img.sort_order
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i]
+            const meta = imagesMeta[i] || {}
+
+            //auto primary ถ้าไม่มี primary ทั้ง request และ DB
+            if (primaryCount === 0 &&
+                existingPrimary.rowCount === 0 &&
+                i === 0
+            ) {
+                meta.is_primary = true
+            }
+
+            meta.is_primary = meta.is_primary === true
+
+
+            if (meta.sort_order == null) {
+                currentSort++
+                meta.sort_order = currentSort
+            }
+
+            const safeSortOrder = Number(meta.sort_order) || 0
+
+            const uploadResult = await cloudinary.uploader.upload(
+                `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+                {
+                    folder: "products",
+                }
             )
 
-            return `($${base + 1}, $${base + 2},$${base + 3},$${base + 4})`
-        }).join(",")
-
-        const insertQuery = `
-        insert into product_images
-        (product_id , image_url , is_primary , sort_order)
-        values ${placeholders}
-        returning *`
-
-        const result = await client.query<ProductImageResponse>(
-            insertQuery,
-            values
-        )
+            const insertResult = await client.query<ProductImageResponse>(
+                `insert into product_images
+                (product_id , image_url , public_id ,is_primary , sort_order)
+                values($1,$2,$3,$4,$5 )
+                returning *`,
+                [product_id,
+                    uploadResult.secure_url,
+                    uploadResult.public_id,
+                    meta.is_primary,
+                    safeSortOrder
+                ]
+            )
+            uploadedResults.push(insertResult.rows[0])
+        }
 
         await client.query("COMMIT")
 
-        return result.rows
+        return uploadedResults
     } catch (err) {
         await client.query("ROLLBACK")
         throw err
@@ -237,12 +249,14 @@ export const updateSortOrderByIdService = async (product_id: number, body: setSo
 }
 
 
-export const deleteProductImagesByIdService = async (product_id: number, body: DeleteProductImagesInput) => {
+export const deleteProductImagesByIdService = async (
+    product_id: number,
+    body: DeleteProductImagesInput) => {
 
     const { image_ids } = body
 
     if (!image_ids || image_ids.length === 0) {
-        throw new AppError("image ids are required", 400)
+        throw new AppError("image ids are requ  ired", 400)
     }
 
     const client = await pool.connect()
@@ -257,6 +271,20 @@ export const deleteProductImagesByIdService = async (product_id: number, body: D
 
         if (checkProduct.rowCount === 0) {
             throw new AppError("Product not found", 400)
+        }
+
+        const images = await client.query(`
+            select id , public_id from product_images
+            where product_id =$1
+            and id = any($2::int[])`,
+            [product_id, image_ids]
+        )
+
+        if (images.rowCount !== image_ids.length)
+            throw new AppError("Some images not found in this product", 400)
+
+        for (const img of images.rows) {
+            await cloudinary.uploader.destroy(img.public_id)
         }
 
         const result = await client.query(

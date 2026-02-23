@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 import app from './app'
 import { pool } from './db/connectPostgre.repository'
+import cloudinary from './config/cloudinary'
 
 
 

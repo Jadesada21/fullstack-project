@@ -4,16 +4,16 @@ export interface ProductImageResponse {
     id: number
     product_id: number
     image_url: string
+    public_id: string
     is_primary: boolean
     sort_order: number
     created_at: string
     updated_at: string
 }
 
-export interface ProductImageInput {
-    image_url: string
-    is_primary: boolean
-    sort_order: number
+export interface ProductImageMetaInput {
+    is_primary?: boolean
+    sort_order?: number
 }
 
 export interface DeleteProductImagesInput {
@@ -29,5 +29,5 @@ export interface setSortOrderImageInput {
 }
 
 export interface UploadImageBody {
-    images: ProductImageInput[]
+    imagesMeta?: ProductImageMetaInput[]
 }

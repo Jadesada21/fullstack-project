@@ -14,7 +14,12 @@ import {
 } from '../../types/product/image.type'
 
 
-export const uploadImageByProductId = async (req: Request<{ product_id: string }, {}, UploadImageBody>, res: Response, next: NextFunction) => {
+export const uploadImageByProductId = async (
+    req: Request<{ product_id: string }, {}, { imageMeta?: string }>,
+    res: Response,
+    next: NextFunction) => {
+    console.log("PARAM:", req.params.product_id)
+    console.log("NUMBER:", Number(req.params.product_id))
     try {
         const product_id = Number(req.params.product_id)
 
@@ -22,9 +27,20 @@ export const uploadImageByProductId = async (req: Request<{ product_id: string }
             return res.status(400).json({ status: "Failed", message: "Invalid product_id" })
         }
 
-        const images = req.body.images
+        const files = req.files as Express.Multer.File[]
 
-        const result = await uploadImageProductByIdService(product_id, images)
+        let imagesMeta = []
+        if (req.body.imageMeta) {
+            try {
+                imagesMeta = JSON.parse(req.body.imageMeta)
+            } catch (err) {
+                return res.status(400).json({ status: "Failed", message: "imagesMeta must be valid JSON" })
+            }
+        }
+
+
+        const result = await uploadImageProductByIdService(
+            product_id, files, imagesMeta)
         return res.status(201).json({ status: "Success", data: result })
     } catch (err) {
         next(err)
@@ -93,15 +109,19 @@ export const updateSortOrderByProductId = async (req: Request<{ product_id: stri
 
 export const deleteProductImagesByProductId = async (req: Request<{ product_id: string }, {}, { image_ids: number[] }>, res: Response, next: NextFunction) => {
     try {
-        const product_id = Number(req.params.product_id)
+        const product_id = parseInt(req.params.product_id, 10)
 
-        if (!product_id) {
+        if (!isNaN(product_id)) {
             return res.status(400).json({ status: "Failed", message: "Invalid product_id" })
         }
 
         const { image_ids } = req.body
-        if (!image_ids || image_ids.length === 0) {
-            return res.status(400).json({ status: "Failed", message: "Image_ids are required" })
+        if (
+            !Array.isArray(image_ids) ||
+            image_ids.length === 0 ||
+            image_ids.some(id => typeof id !== "number")
+        ) {
+            return res.status(400).json({ status: "Failed", message: "Valid image_ids array is required" })
         }
 
         const data = await deleteProductImagesByIdService(product_id, { image_ids })
@@ -112,6 +132,5 @@ export const deleteProductImagesByProductId = async (req: Request<{ product_id: 
         })
     } catch (err) {
         next(err)
-
     }
 }
