@@ -19,8 +19,8 @@ export const getAllProduct = async (req: Request, res: Response, next: NextFunct
     try {
 
         const role = req.user?.role
-        const product = await getAllProductService(role)
-        return res.status(200).json({ status: "Success", data: product })
+        const data = await getAllProductService(role)
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }

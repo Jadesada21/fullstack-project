@@ -33,9 +33,9 @@ export const uploadImageByRewardId = async (
         }
 
 
-        const result = await uploadImageRewardByIdService(
+        const data = await uploadImageRewardByIdService(
             reward_id, files, imagesMeta)
-        return res.status(201).json({ status: "Success", data: result })
+        return res.status(201).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
 

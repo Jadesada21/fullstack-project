@@ -15,8 +15,8 @@ import { AppError } from '../util/AppError'
 
 export const getAllCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const category = await getAllCategoryService()
-        return res.status(200).json({ status: "Success", data: category })
+        const data = await getAllCategoryService()
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
@@ -25,8 +25,8 @@ export const getAllCategory = async (req: Request, res: Response, next: NextFunc
 
 export const createCategory = async (req: Request<{}, {}, CreateCategoryInput>, res: Response, next: NextFunction) => {
     try {
-        const Newcategory = await createCategoryService(req.body)
-        return res.status(201).json({ status: "Success", data: Newcategory })
+        const data = await createCategoryService(req.body)
+        return res.status(201).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }

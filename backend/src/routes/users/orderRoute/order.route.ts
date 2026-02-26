@@ -4,7 +4,7 @@ import {
     createOrder,
     updateStatusOrder,
     getOrderByUserId
-} from '../../controller/order.controller'
+} from '../../../controller/orderRoute/order.controller'
 
 import orderItemRoute from './orderItems.route'
 
@@ -16,8 +16,6 @@ router.route('/')
 
 router.route('/me')
     .get(getOrderByUserId)
-
-router.route('/:id')
 
 router.route('/:id/status')
     .patch(updateStatusOrder)

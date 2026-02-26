@@ -1,14 +1,15 @@
 import { Router } from 'express'
 
 import {
-    getAllOrderItem,
+    getAllPointsHistory
+} from '../../controller/pointHistory.controller'
 
-} from '../../../controller/orderItem.Controller'
 
 const router = Router()
 
 
 router.route('/')
-    .get(getAllOrderItem)
+    .get(getAllPointsHistory)
+
 
 export default router

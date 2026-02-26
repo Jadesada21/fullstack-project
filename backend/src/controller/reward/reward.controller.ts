@@ -19,8 +19,8 @@ export const getAllReward = async (req: Request, res: Response, next: NextFuncti
     try {
         const role = req.user?.role
 
-        const reward = await getAllRewardService(role)
-        return res.status(200).json({ status: "Success", data: reward })
+        const data = await getAllRewardService(role)
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
@@ -41,8 +41,8 @@ export const createReward = async (req: Request<{}, {}, CreateRewardInput>, res:
             throw new AppError("Missing required field", 400)
         }
 
-        const newReward = await createRewardService(req.body)
-        return res.status(201).json({ status: "Success", data: newReward })
+        const data = await createRewardService(req.body)
+        return res.status(201).json({ status: "Success", data: data })
 
     } catch (err) {
         next(err)

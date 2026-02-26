@@ -7,12 +7,9 @@ import {
 
 import adminImageProductRoute from './ad.image.product.route'
 
-import { authorize } from '../../../middleware/authorize'
-
 
 const router = Router()
 
-router.use(authorize('admin'))
 
 router.route('/')
     .post(createProduct)

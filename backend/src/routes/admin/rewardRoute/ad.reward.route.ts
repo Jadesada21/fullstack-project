@@ -1,7 +1,5 @@
 import { Router } from 'express'
 
-import { authorize } from '../../../middleware/authorize'
-
 import {
     createReward,
     toggleRewardActive
@@ -11,7 +9,6 @@ import imageRewardRoute from '../../admin/rewardRoute/ad.image.reward.route'
 
 const router = Router()
 
-router.use(authorize('admin'))
 
 router.route('/')
     .post(createReward)

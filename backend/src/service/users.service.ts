@@ -14,7 +14,8 @@ import {
 
 
 export const getAllUsersService = async () => {
-    const sql = `select 
+    const response = await pool.query(
+        `select 
         id,
         username,
         email,
@@ -27,14 +28,15 @@ export const getAllUsersService = async () => {
         created_at,
         updated_at
         from users order by id desc`
-    const response = await pool.query(sql)
+    )
     return response.rows
 }
 
 
 export const getUsersByIdService = async (id: number) => {
-    const sql = `Select * from users where id = $1`
-    const response = await pool.query(sql, [id])
+    const response = await pool.query(
+        `Select * from users where id = $1`
+        , [id])
 
     if (response.rowCount === 0) {
         throw new AppError("Users not found", 404)
@@ -47,12 +49,13 @@ export const getUsersByIdService = async (id: number) => {
 export const updateUsersByIdService = async (id: number, body: UpdateUsersPhoneInput) => {
     const { phone_num } = body
 
-    const sql = `update users
+    const response = await pool.query(
+        `update users
         set phone_num = $1
         where id = $2
-        returning id ,phone_num`
-
-    const response = await pool.query(sql, [phone_num, id])
+        returning id ,phone_num`,
+        [phone_num, id]
+    )
 
     if (response.rowCount === 0) {
         throw new AppError("User not found", 404)

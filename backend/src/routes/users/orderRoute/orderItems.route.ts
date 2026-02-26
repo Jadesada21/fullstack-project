@@ -2,11 +2,14 @@ import { Router } from 'express'
 
 import {
     getOrderItemByOrderId
-} from '../../controller/orderItem.Controller'
+} from '../../../controller/orderRoute/orderItem.Controller'
+
+import { authorize } from '../../../middleware/authorize'
 
 const router = Router()
 
-router.route('/detail')
-    .get(getOrderItemByOrderId)
+router.route('/')
+    .get(authorize(['admin', 'customer']), getOrderItemByOrderId)
+
 
 export default router

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { AppError } from '../util/AppError'
+import { AppError } from '../../util/AppError'
 
 import {
     getAllOrderService,
@@ -7,16 +7,16 @@ import {
     updateStatusOrderService,
     getOrderByidService,
     getOrderByUserIdService
-} from '../service/order.service'
+} from '../../service/order/order.service'
 
-import { CreateOrderInput } from '../types/order.type'
-import { Status } from '../types/order.type'
+import { CreateOrderInput } from '../../types/order.type'
+import { Status } from '../../types/order.type'
 
 
 export const getAllOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const response = await getAllOrderService()
-        return res.status(200).json({ status: "Success", data: response })
+        const data = await getAllOrderService()
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
@@ -36,11 +36,11 @@ export const createOrder = async (req: Request<{ id: string }, {}, CreateOrderIn
             throw new AppError("Order items required", 400)
         }
 
-        const response = await createOrderService({
+        const data = await createOrderService({
             user_id,
             items
         })
-        return res.status(200).json({ status: "Success", data: response })
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
@@ -66,8 +66,8 @@ export const updateStatusOrder = async (req: Request<{ id: string }, {}, { statu
             return res.status(400).json({ status: "Failed", message: "Invalid Status" })
         }
 
-        const response = await updateStatusOrderService(orderId, status, req.user)
-        return res.status(200).json({ status: "Success", data: response.message })
+        const data = await updateStatusOrderService(orderId, status, req.user)
+        return res.status(200).json({ status: "Success", data: data.message })
     } catch (err) {
         next(err)
     }
@@ -81,8 +81,8 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
             return res.status(400).json({ status: "Failed", message: "Invalid order id" })
         }
 
-        const response = await getOrderByidService(id)
-        return res.status(200).json({ status: "Success", data: response })
+        const data = await getOrderByidService(id)
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
@@ -96,8 +96,8 @@ export const getOrderByUserId = async (req: Request, res: Response, next: NextFu
             return res.status(400).json({ status: "Failed", message: "Invalid user id" })
         }
 
-        const response = await getOrderByUserIdService(userId)
-        return res.status(200).json({ status: "Success", data: response })
+        const data = await getOrderByUserIdService(userId)
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
