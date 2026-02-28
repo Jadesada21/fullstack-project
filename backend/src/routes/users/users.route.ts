@@ -5,17 +5,16 @@ import {
     updateUsersById,
 } from '../../controller/users.controller'
 
+import { authorize } from '../../middleware/authorize'
+
+
 
 
 const router = Router();
 
 
-router.route('/')
-    .get(getAllUsers)
-
-
 router.route('/:id')
-    .get(getUsersById)
-    .patch(updateUsersById)
+    .get(authorize(['customer']), getUsersById)
+    .patch(authorize(['customer']), updateUsersById)
 
 export default router;

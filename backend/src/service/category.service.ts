@@ -13,7 +13,8 @@ export const getAllCategoryService = async () => {
     type,
     created_at,
     updated_at
-    from categories order by id desc
+    from categories 
+    order by id desc
     `
     const response = await pool.query(sql)
     return response.rows

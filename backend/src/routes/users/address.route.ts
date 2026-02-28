@@ -8,13 +8,14 @@ import {
 
 const router = Router();
 
+import { authorize } from '../../middleware/authorize'
+
 
 router.route('/')
-    .get(getAllUsersAddress)
-    .post(addUsersAddressById)
+    .post(authorize(['customer']), addUsersAddressById)
 
 
 router.route('/:id')
-    .patch(updateAddressUsersById)
+    .patch(authorize(['customer']), updateAddressUsersById)
 
 export default router

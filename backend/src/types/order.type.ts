@@ -12,8 +12,8 @@ export interface OrderResponse {
 }
 
 export interface CreateOrderInput {
-    user_id: number
     items: OrderItemInput[]
+    loginUserId: number
 }
 
 export interface OrderItemInput {

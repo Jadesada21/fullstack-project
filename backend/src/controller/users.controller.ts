@@ -33,12 +33,13 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
 export const getUsersById = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-        const id = Number(req.params.id)
-        if (isNaN(id)) {
+        const targetUserId = Number(req.params.id)
+
+        if (!targetUserId || isNaN(targetUserId)) {
             throw new AppError("Invalid user ID", 400)
         }
 
-        const data = await getUsersByIdService(id)
+        const data = await getUsersByIdService(targetUserId, req.user!.id)
 
         return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
@@ -49,16 +50,20 @@ export const getUsersById = async (req: Request, res: Response, next: NextFuncti
 
 export const updateUsersById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = Number(req.params.id)
-        if (isNaN(id)) {
+
+        const targetUserId = Number(req.params.id)
+        if (isNaN(targetUserId)) {
             throw new AppError("Invalid user ID", 400)
         }
 
         const { phone_num } = req.body
+
         if (!phone_num) {
             throw new AppError("Phone Number is required", 400)
         }
-        const responese = await updateUsersByIdService(id, { phone_num })
+
+
+        const responese = await updateUsersByIdService(targetUserId, req.user!.id, { phone_num })
 
         return res.status(200).json({ status: "Success", data: responese })
     } catch (err) {
@@ -83,11 +88,7 @@ export const getAllUsersAddress = async (req: Request, res: Response, next: Next
 
 export const addUsersAddressById = async (req: Request<{}, {}, AddUsersAddressByIdInput>, res: Response, next: NextFunction) => {
     try {
-        if (!req.user) {
-            throw new AppError("Unauthorized", 401)
-        }
-
-        const userId = req.user.id
+        const userId = req.user!.id
 
         const { address_line, country, province, district, subdistrict, postal_code, is_default } = req.body
 
@@ -105,7 +106,6 @@ export const addUsersAddressById = async (req: Request<{}, {}, AddUsersAddressBy
 
 export const updateAddressUsersById = async (req: Request<{ id: string }, {}, UpdateUsersAddressInput>, res: Response, next: NextFunction) => {
     try {
-        console.log("=== CONTROLLER HIT ===")
         const addressId = Number(req.params.id)
 
         if (isNaN(addressId)) {
@@ -113,7 +113,7 @@ export const updateAddressUsersById = async (req: Request<{ id: string }, {}, Up
         }
 
         if (!req.user) {
-            throw new AppError("Unauthorize", 401)
+            throw new AppError("Forbidden", 401)
         }
 
         const userId = req.user!.id

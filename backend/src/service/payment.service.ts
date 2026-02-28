@@ -2,10 +2,6 @@ import { pool } from '../db/connectPostgre.repository'
 import { Role } from '../types/users.type'
 import { AppError } from '../util/AppError'
 
-import {
-    PaymentResponse,
-    PaymentInput
-} from '../types/payment.type'
 
 export const getAllPaymentService = async () => {
     const response = await pool.query(`
@@ -94,7 +90,7 @@ export const createPaymentService = async (order_id: number, userId: number) => 
 
 }
 
-export const comfirmPaymentService = async (paymentId: number) => {
+export const comfirmPaymentService = async (paymentId: number, loginUserId: number) => {
 
     const client = await pool.connect()
     try {
@@ -102,10 +98,11 @@ export const comfirmPaymentService = async (paymentId: number) => {
 
         // lock payment
         const paymentResult = await client.query(`
-            select order_id , status
-            from payment
-            where id = $1
-            for update
+            select p.order_id , p.status , o.user_id
+            from payment p 
+            join orders o on o.id = p.order_id
+            where p.id = $1
+            for update of p , o 
             `, [paymentId])
 
         if (paymentResult.rowCount === 0) {
@@ -114,18 +111,13 @@ export const comfirmPaymentService = async (paymentId: number) => {
 
         const payment = paymentResult.rows[0]
 
+        if (payment.user_id !== loginUserId) {
+            throw new AppError("Forbidden", 403)
+        }
+
         if (payment.status !== 'pending') {
             throw new AppError("Payment already processed", 400)
         }
-
-        // lock order BEFORE update
-        await client.query(`
-            select id 
-            from orders
-            where id = $1
-            for update
-            `,
-            [payment.order_id])
 
         // update payment
         await client.query(`
@@ -144,10 +136,121 @@ export const comfirmPaymentService = async (paymentId: number) => {
             [payment.order_id])
 
         await client.query("COMMIT")
+        return {
+            payment_id: paymentId,
+            order_id: payment.order_id,
+            status: 'paid'
+        }
     } catch (err) {
         await client.query("ROLLBACK")
         throw err
     } finally {
         client.release()
     }
+}
+
+export const cancelledPaymentService = async (paymentId: number, loginUserId: number) => {
+    const client = await pool.connect()
+
+    try {
+        await client.query("BEGIN")
+
+        // lock payment + order 
+        const paymentResult = await client.query(`
+            select 
+                p.order_id,
+                p.status,
+                o.user_id,
+            from payment p
+            join orders o on o.id = p.order_id
+            where p.id = $1
+            for update of p , o
+            `[paymentId])
+
+        if (paymentResult.rowCount === 0) {
+            throw new AppError("Payment not found", 400)
+        }
+
+        const payment = paymentResult.rows[0]
+
+        // owner check
+        if (payment.user_id !== loginUserId) {
+            throw new AppError("Forbidden", 403)
+        }
+
+        // allow cancel only pending
+        if (payment.status !== 'pending') {
+            throw new AppError("Payment already processed", 400)
+        }
+
+        // cancel payment
+        await client.query(`
+            update orders
+            set status = 'cancelled',
+            updated_at = now()
+            where id = $1
+            and status = 'pending'
+            `[payment.order_id])
+
+
+        // cancel order
+        const items = await client.query(`
+            select product_id , quantity
+            from order_items
+            where order_id = $1
+            `, [payment.order_id])
+
+        // restore stock
+        for (const item of items.rows) {
+            await client.query(`
+                update products
+                set stock = stock + $1
+                where id =$2
+                `, [item.quantity, item.product_id])
+        }
+
+        await client.query("COMMIT")
+    } catch (err) {
+        await client.query("ROLLBACK")
+    } finally {
+        client.release()
+    }
+}
+
+export const getPaymentByIdService = async (
+    paymentId: number,
+    loginUserId: number,
+    role: Role
+) => {
+
+    const response = await pool.query(
+        role === 'admin'
+            ? `
+        select 
+            p. * ,
+            o.user_id
+        from payment p 
+        join orders o on o.id = p.order_id
+        where p.id = $1
+        `
+            :
+            `
+        select p.* , o.user_id
+        from payment p 
+        join orders o on o.id = p.order_id
+        where p.id = $1
+        and o.user_id = $2
+        `,
+        role === 'admin'
+            ? [paymentId]
+            : [paymentId, loginUserId]
+    )
+
+    if (response.rowCount === 0) {
+        throw new AppError("Payment not found", 400)
+    }
+
+    const payment = response.rows[0]
+
+    return payment
 }

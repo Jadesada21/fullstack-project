@@ -7,7 +7,6 @@ import {
 
 import imageRewardRoute from './imageReward.route'
 
-import { authorize } from '../../../middleware/authorize'
 
 
 

@@ -2,7 +2,7 @@ import { Router } from 'express'
 
 import {
     getOrderItemByOrderId
-} from '../../../controller/orderRoute/orderItem.Controller'
+} from '../../../controller/order/orderItem.Controller'
 
 import { authorize } from '../../../middleware/authorize'
 

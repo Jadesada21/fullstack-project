@@ -1,4 +1,4 @@
-export type Role = "admin" | "customer"
+export type Role = "admin" | "customer" | "guest"
 
 export interface CreateUsersInput {
     username: string

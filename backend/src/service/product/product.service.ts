@@ -6,7 +6,9 @@ import {
     CreateProductInput
 } from '../../types/product/product.type'
 
-export const getAllProductService = async (role?: string) => {
+import { Role } from '../../types/users.type'
+
+export const getAllProductService = async (role?: Role | 'guest') => {
     if (role === 'admin') {
         const sql = ` select 
         p.id,

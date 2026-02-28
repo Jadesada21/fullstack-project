@@ -3,7 +3,7 @@ import { Router } from 'express'
 import {
     getAllOrder,
     getOrderById
-} from '../../../controller/orderRoute/order.controller'
+} from '../../../controller/order/order.controller'
 
 
 const router = Router()

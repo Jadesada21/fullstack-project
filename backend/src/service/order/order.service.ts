@@ -6,6 +6,9 @@ import {
     CreateOrderInput,
     Status
 } from '../../types/order.type'
+import { Role } from '../../types/users.type'
+
+
 
 export const getAllOrderService = async () => {
     const sql = `select 
@@ -24,11 +27,13 @@ export const getAllOrderService = async () => {
     return response.rows
 }
 
+
 export const createOrderService = async (
-    body: CreateOrderInput
+    body: CreateOrderInput,
+    loginUserId: number
 ): Promise<OrderResponse> => {
 
-    const { user_id, items } = body
+    const { items } = body
     const client = await pool.connect()
 
     try {
@@ -69,10 +74,11 @@ export const createOrderService = async (
             )
         }
 
+        // check active + stock
         for (const [productId, totalQty] of quantityMap.entries()) {
+
             const product = productMap.get(productId)
 
-            // check active + stock
             if (!product.is_active) {
                 throw new AppError("Product is inactive", 400)
             }
@@ -82,8 +88,10 @@ export const createOrderService = async (
             }
         }
 
+        // calculate totals
         for (const item of items) {
             const product = productMap.get(item.product_id)
+
             totalPrice += product.price * item.quantity
             totalPoints += product.reward_points * item.quantity
         }
@@ -99,7 +107,7 @@ export const createOrderService = async (
         'pending'
         )
         returning *`,
-            [user_id, totalPrice, totalPoints]
+            [loginUserId, totalPrice, totalPoints]
         )
 
         const order = orderResult.rows[0]
@@ -142,6 +150,7 @@ export const createOrderService = async (
         }
 
         await client.query("COMMIT")
+
         return order
 
     } catch (err) {
@@ -151,6 +160,7 @@ export const createOrderService = async (
         client.release()
     }
 }
+
 
 export const updateStatusOrderService = async (
     orderId: number,
@@ -163,6 +173,7 @@ export const updateStatusOrderService = async (
     try {
         await client.query("BEGIN")
 
+        // lock order
         const orderResult = await client.query(`
             select * from orders where id = $1
             for update
@@ -176,9 +187,9 @@ export const updateStatusOrderService = async (
 
         const order = orderResult.rows[0]
 
-
-        if (order.status === newStatus) {
-            throw new AppError("Status already set", 400)
+        // ต้องเป็น order ของตัวเอง
+        if (user.role !== 'admin' && order.user_id !== user.id) {
+            throw new AppError("Forbidden", 403)
         }
 
         // อัพเดทสถานะได้ ก็ต่อเมื่อ สถานะ = pending
@@ -191,65 +202,106 @@ export const updateStatusOrderService = async (
             throw new AppError("Invalid status transition", 400)
         }
 
-        if (user.role !== 'admin') {
-
-            // ต้องเป็น order ของตัวเอง
-            if (order.user_id !== user.id) {
-                throw new AppError("Unauthorized", 403)
-            }
+        if (order.status === newStatus) {
+            throw new AppError("Status already set", 400)
         }
 
-        await client.query(`
-            update orders
-            set status = $1,    
-            updated_at = now()
-            where id = $2
-            `,
-            [newStatus, orderId]
+        const itemsResult = await client.query(`
+            select product_id , quantity
+            from order_items
+            where id = $1
+            `, [orderId]
         )
+
+        const items = itemsResult.rows
 
 
         // Order ที่จบแล้ว update points
-        if (newStatus === 'completed' && order.earned_points > 0) {
-            await client.query(`
-                insert into collect_point_history
+        if (newStatus === 'completed') {
+
+            for (const item of items) {
+
+                const productResult = await client.query(`
+                    select stock
+                    from products
+                    where id =$1
+                    `, [item.product_id])
+
+                const product = productResult.rows[0]
+
+                if (product.stock < item.quantity) {
+                    throw new AppError("Insufficient stock ", 400)
+                }
+
+                // decrease stock
+                await client.query(`
+                    update products
+                    set stock = stock - $1
+                    where id =$ 2
+                    `, [item.quantity, item.product_id])
+
+
+                // stock movement out
+                await client.query(`
+                        insert into stock_movements
+                        (product_id , order_id ,quantity , movement_type)
+                        values($1,$2,$3,'out')
+                        `, [item.product_id, order.id, item.quantity])
+            }
+
+            // get points
+            if (order.earned_points > 0) {
+                await client.query(`
+                      insert into collect_point_history
                 (user_id , order_id , points ,source )
-                values($1,$2,$3,$4)
+                values($1,$2,$3,'order')
                 returning *
                 `,
-                [order.user_id, orderId, order.earned_points, 'order']
-            )
+                    [order.user_id, orderId, order.earned_points]
+                )
 
-            await client.query(`
-            update users
-            set total_points = total_points + $1
-            where id = $2
-            `,
-                [order.earned_points, order.user_id]
-            )
-        }
-
-        if (newStatus === 'cancelled') {
-
-            const items = await client.query(`
-                select product_id , quantity from order_items where order_id = $1
-                `,
-                [orderId]
-            )
-
-            for (const item of items.rows) {
                 await client.query(`
-                update products
-                set stock = stock + $1
-                where id = $2   
-                `,
-                    [item.quantity, item.product_id]
+                    update users
+                    set total_points = total_points + $1
+                    where id = $2
+            `,
+                    [order.earned_points, order.user_id]
                 )
             }
         }
 
+        if (newStatus === 'cancelled') {
+
+            for (const item of items) {
+
+                // restore stock
+                await client.query(`
+                    update products
+                    set stock = stock + $1
+                    where id =$2
+                    `, [item.quantity, item.product_id])
+
+                // stock movement in
+                await client.query(`
+               insert into stock_movements
+               (product_id , order_id ,quantity , movement_type)
+               values($1,$2,$3,'in')
+                `,
+                    [item.product_id, orderId, item.quantity]
+                )
+            }
+
+            // update order (list)
+
+            await client.query(`
+                    update orders
+                    set status = $1,
+                        updated_at = $2
+                        where id = $3
+                    `, [newStatus, orderId])
+        }
         await client.query("COMMIT")
-        return { message: "Order updated Successfully" }
+        return { orderId: orderId, status: newStatus }
     } catch (err) {
         await client.query("ROLLBACK")
         throw err
@@ -258,18 +310,25 @@ export const updateStatusOrderService = async (
     }
 }
 
-export const getOrderByidService = async (id: number) => {
+
+export const getOrderByidService = async (orderId: number, loginUserId: number, role: Role) => {
     const response = await pool.query(
-        `select * from orders where id = $1`,
-        [id]
+        `select * 
+        from orders 
+        where id = $1 
+        `,
+        [orderId]
     )
+
     if (response.rowCount === 0) {
         throw new AppError("Orders not found", 404)
     }
+
     return response.rows[0]
 }
 
-export const getOrderByUserIdService = async (userId: number) => {
+
+export const getOrderByUserIdService = async (loginUserId: number) => {
     const response = await pool.query(`
    select 
             o.id as order_id,
@@ -293,7 +352,7 @@ export const getOrderByUserIdService = async (userId: number) => {
         where o.user_id = $1
         group by o.id, o.status, o.total_price, o.created_at
         order by o.created_at desc
-    `, [userId])
+    `, [loginUserId])
 
     return response.rows
 }

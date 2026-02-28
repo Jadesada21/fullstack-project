@@ -49,31 +49,19 @@ export const getPointsHistoryByUserId = async (req: Request, res: Response, next
             throw new AppError("Invalid limit", 400)
         }
 
-        if (!req.user) {
-            throw new AppError("Unauthorized", 400)
-        }
-
-        const loginUserId = Number(req.user.id)
-
-        if (isNaN(loginUserId)) {
-            throw new AppError("Invalid login user id", 400)
-        }
-
-        const role = req.user.role
-
-
-        const data = await getPointsHistoryByUserIdService(targetUserId, limit, loginUserId, role)
+        const data = await getPointsHistoryByUserIdService(targetUserId, limit)
         return res.status(200).json({ status: "Success", total: data.length, data })
     } catch (err) {
         next(err)
     }
 }
 
+
 export const getMyPointsHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const loginUserId = Number(req.user!.id)
 
-        const data = await getPointsHistoryByUserIdService(loginUserId, 10, loginUserId, req.user!.role)
+        const data = await getPointsHistoryByUserIdService(loginUserId, 10)
         return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)

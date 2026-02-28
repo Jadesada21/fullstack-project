@@ -22,24 +22,14 @@ export const getAllOrder = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-export const createOrder = async (req: Request<{ id: string }, {}, CreateOrderInput>, res: Response, next: NextFunction) => {
+export const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const loginUserId = req.user!.id
 
-        const user_id = req.user?.id
-        const { items } = req.body
-
-        if (!user_id) {
-            throw new AppError("Unauthorized", 400)
-        }
-
-        if (!Array.isArray(items) || items.length === 0) {
-            throw new AppError("Order items required", 400)
-        }
-
-        const data = await createOrderService({
-            user_id,
-            items
-        })
+        const data = await createOrderService(
+            req.body,
+            loginUserId
+        )
         return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
@@ -52,22 +42,12 @@ export const updateStatusOrder = async (req: Request<{ id: string }, {}, { statu
         const { status } = req.body
 
 
-        if (!isNaN(orderId)) {
-            return res.status(400).json({ status: "Failed", message: "Invalid order id" })
-        }
-
-        if (!status) {
-            return res.status(400).json({ status: "Failed", message: "Status is required" })
-        }
-
-        const allowedStatus: Status[] = ["completed", "cancelled"]
-
-        if (!allowedStatus.includes(status)) {
-            return res.status(400).json({ status: "Failed", message: "Invalid Status" })
+        if (!orderId || isNaN(orderId)) {
+            throw new AppError("Invalid orderid", 400)
         }
 
         const data = await updateStatusOrderService(orderId, status, req.user)
-        return res.status(200).json({ status: "Success", data: data.message })
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
@@ -75,13 +55,16 @@ export const updateStatusOrder = async (req: Request<{ id: string }, {}, { statu
 
 export const getOrderById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = Number(req.params.id)
+        const orderId = Number(req.params.id)
 
-        if (Number.isNaN(id)) {
+        if (Number.isNaN(orderId)) {
             return res.status(400).json({ status: "Failed", message: "Invalid order id" })
         }
 
-        const data = await getOrderByidService(id)
+        const loginUserId = req.user!.id
+        const role = req.user!.role
+
+        const data = await getOrderByidService(orderId, loginUserId, role)
         return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
@@ -95,6 +78,7 @@ export const getOrderByUserId = async (req: Request, res: Response, next: NextFu
         if (Number.isNaN(userId) || userId < 0) {
             return res.status(400).json({ status: "Failed", message: "Invalid user id" })
         }
+
 
         const data = await getOrderByUserIdService(userId)
         return res.status(200).json({ status: "Success", data: data })

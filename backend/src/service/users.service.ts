@@ -3,6 +3,7 @@ import { AppError } from '../util/AppError'
 
 
 import {
+    Role,
     UpdateUsersPhoneInput,
 } from '../types/users.type'
 
@@ -33,10 +34,15 @@ export const getAllUsersService = async () => {
 }
 
 
-export const getUsersByIdService = async (id: number) => {
+export const getUsersByIdService = async (targetUserId: number, loginUserId: number) => {
+
+    if (targetUserId !== loginUserId) {
+        throw new AppError("Forbidden", 403)
+    }
+
     const response = await pool.query(
         `Select * from users where id = $1`
-        , [id])
+        , [targetUserId])
 
     if (response.rowCount === 0) {
         throw new AppError("Users not found", 404)
@@ -46,15 +52,16 @@ export const getUsersByIdService = async (id: number) => {
 }
 
 
-export const updateUsersByIdService = async (id: number, body: UpdateUsersPhoneInput) => {
+export const updateUsersByIdService = async (targetUserId: number, loginUserId: number, body: UpdateUsersPhoneInput) => {
     const { phone_num } = body
 
     const response = await pool.query(
         `update users
         set phone_num = $1
         where id = $2
+        and id =$3
         returning id ,phone_num`,
-        [phone_num, id]
+        [phone_num, targetUserId, loginUserId]
     )
 
     if (response.rowCount === 0) {
@@ -123,7 +130,7 @@ export const createUsersAddressByIdService = async (userId: number, body: AddUse
             values($1,$2,$3,$4,$5,$6,$7,$8)
             returning 
             id, user_id , address_line ,country, province, district, subdistrict, postal_code , is_default , created_at ,updated_at `,
-            [userId, address_line, country, province, district, subdistrict, postal_code, is_default]
+            [userId, address_line, country, province, district, subdistrict, postal_code, is_default ?? false]
         )
 
         await client.query("COMMIT")
@@ -139,34 +146,68 @@ export const createUsersAddressByIdService = async (userId: number, body: AddUse
 
 
 export const updateAddressUserByIdService = async (userId: number, id: number, body: UpdateUsersAddressInput) => {
-    console.log("userId:", userId)
-    console.log("addressId:", id)
-    const fields: string[] = []
-    const values: any[] = []
-    let index = 1
+    const client = await pool.connect()
+    try {
 
-    for (const key in body) {
-        fields.push(`${key} = $${index}`)
-        values.push(body[key as keyof UpdateUsersAddressInput])
-        index++
-    }
+        await client.query("BEGIN")
 
-    if (fields.length === 0) return null
+        if (body.is_default === true) {
+            await client.query(`
+                update users_addresses
+                set is_default = false
+                where user_id = $1
+                `, [userId]
+            )
+        }
 
-    const sql = `update users_addresses
+        // dynamic update
+        const fields: string[] = []
+        const values: any[] = []
+        let index = 1
+
+        const allowedFields = [
+            "address_line",
+            "country",
+            "province",
+            "district",
+            "subdistrict",
+            "postal_code",
+            "is_default"
+        ]
+
+        for (const key in body) {
+            if (!allowedFields.includes(key)) continue
+
+            fields.push(`${key} = $${index}`)
+            values.push(body[key as keyof UpdateUsersAddressInput])
+            index++
+        }
+
+        if (fields.length === 0) {
+            throw new AppError("No field to update", 400)
+        }
+
+        const sql = `update users_addresses
         set ${fields.join(', ')},
         updated_at = current_timestamp
         where id = $${index}
         and user_id = $${index + 1}
         returning *`
 
-    values.push(id, userId)
+        values.push(id, userId)
 
 
-    const response = await pool.query(sql, values)
+        const response = await client.query(sql, values)
 
-    if (response.rowCount === 0) {
-        throw new AppError("Address not found", 404)
+        if (response.rowCount === 0) {
+            throw new AppError("Address not found", 404)
+        }
+        return response.rows[0]
+
+    } catch (err) {
+        await client.query("ROLLBACK")
+        throw err
+    } finally {
+        client.release()
     }
-    return response.rows[0]
 }

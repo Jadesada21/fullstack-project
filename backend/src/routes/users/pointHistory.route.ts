@@ -9,6 +9,6 @@ import { authorize } from '../../middleware/authorize'
 const router = Router()
 
 router.route('/users/me')
-    .get(authorize(['admin', 'customer']), getMyPointsHistory)
+    .get(authorize(['customer']), getMyPointsHistory)
 
 export default router

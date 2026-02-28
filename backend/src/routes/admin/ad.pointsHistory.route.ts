@@ -5,7 +5,6 @@ import {
     getPointsHistoryByUserId
 } from '../../controller/pointHistory.controller'
 
-
 const router = Router()
 
 
