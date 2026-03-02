@@ -2,7 +2,7 @@ import { Router } from 'express'
 
 import {
     getMyPointsHistory
-} from '../../controller/pointHistory.controller'
+} from '../../controller/pointHistories.controller'
 
 import { authorize } from '../../middleware/authorize'
 

@@ -13,15 +13,18 @@ import rewardsRoute from './users/rewardRoute/rewards.route'
 import orderRoute from './users/orderRoute/order.route'
 import pointHistoryRoute from './users/pointHistory.route'
 import paymentRoute from './users/payment.route'
+import redeemRoute from './users/redeemRoute/redeem.route'
 
+import adminStockmoveRoute from './admin/ad.stock_move.route'
 import adminAddressesRoute from './admin/ad.addresses.route'
 import adminUserRoute from './admin/ad.users.route'
 import adminCategoryRoute from './admin/ad.category.route'
 import adminProductRoute from './admin/productRoute/ad.product.route'
 import adminRewardRoute from './admin/rewardRoute/ad.reward.route'
-import adminOrderRoute from './admin/orderRoute/ad.order.route'
+import adminOrderRoute from './admin/ad.order.route'
 import adminPointHistoryRoute from './admin/ad.pointsHistory.route'
 import adminPaymentRoute from './admin/ad.payment.route'
+import adminRedeemRoute from './admin/ad.redeem.route'
 
 import { authenticate } from '../middleware/authenticate'
 import { authorize } from '../middleware/authorize'
@@ -44,8 +47,9 @@ router.use('/logout', logoutRoute)
 router.use('/users', userRoute)
 router.use('/addresses', addressRoute)
 router.use('/orders', orderRoute)
-router.use('/points-history', pointHistoryRoute)
+router.use('/points-histories', pointHistoryRoute)
 router.use('/payment', paymentRoute)
+router.use('/redeems', redeemRoute)
 
 
 // authen admin
@@ -57,8 +61,10 @@ router.use('/admin/categories', adminCategoryRoute)
 router.use('/admin/products', adminProductRoute)
 router.use('/admin/rewards', adminRewardRoute)
 router.use('/admin/orders', adminOrderRoute)
-router.use('/admin/points-history', adminPointHistoryRoute)
+router.use('/admin/points-histories', adminPointHistoryRoute)
 router.use('/admin/payment', adminPaymentRoute)
+router.use('/admin/stock_move', adminStockmoveRoute)
+router.use('/admin/redeems', adminRedeemRoute)
 
 
 export default router

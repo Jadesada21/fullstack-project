@@ -1,20 +1,20 @@
 import { Router } from 'express'
 
 import {
-    getAllOrder,
-    getOrderById
-} from '../../../controller/order/order.controller'
+    getAllRedeem,
+    getRedeemById
+} from '../../controller/redeem/redeem.controller'
 
 
 const router = Router()
 
 
 router.route('/')
-    .get(getAllOrder)
+    .get(getAllRedeem)
 
 
 router.route('/:id')
-    .get(getOrderById)
+    .get(getRedeemById)
 
 
 export default router

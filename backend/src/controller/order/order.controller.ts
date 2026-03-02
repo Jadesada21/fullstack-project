@@ -30,7 +30,7 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
             req.body,
             loginUserId
         )
-        return res.status(200).json({ status: "Success", data: data })
+        return res.status(201).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }
@@ -42,8 +42,12 @@ export const updateStatusOrder = async (req: Request<{ id: string }, {}, { statu
         const { status } = req.body
 
 
-        if (!orderId || isNaN(orderId)) {
+        if (Number.isNaN(orderId)) {
             throw new AppError("Invalid orderid", 400)
+        }
+
+        if (!status) {
+            throw new AppError("Status required", 400)
         }
 
         const data = await updateStatusOrderService(orderId, status, req.user)
@@ -58,7 +62,7 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
         const orderId = Number(req.params.id)
 
         if (Number.isNaN(orderId)) {
-            return res.status(400).json({ status: "Failed", message: "Invalid order id" })
+            throw new AppError("Invalid order id", 400)
         }
 
         const loginUserId = req.user!.id
@@ -76,9 +80,8 @@ export const getOrderByUserId = async (req: Request, res: Response, next: NextFu
         const userId = Number(req.params.id)
 
         if (Number.isNaN(userId) || userId < 0) {
-            return res.status(400).json({ status: "Failed", message: "Invalid user id" })
+            throw new AppError("Invalid user id", 400)
         }
-
 
         const data = await getOrderByUserIdService(userId)
         return res.status(200).json({ status: "Success", data: data })

@@ -1,0 +1,31 @@
+import { Router } from 'express'
+
+import {
+    createRedeem,
+    updateStatusRedeem,
+    getRedeemById
+} from '../../../controller/redeem/redeem.controller'
+
+import redeemItemRoute from './redeemItem.route'
+
+import {
+    authorize
+} from '../../../middleware/authorize'
+
+const router = Router()
+
+router.route('/')
+    .post(authorize(['customer']), createRedeem)
+
+router.route('/me')
+    .get(authorize(['customer']), getRedeemById)
+
+router.route('/:id/status')
+    .patch(authorize(['customer']), updateStatusRedeem)
+
+
+// ******************** redeem_items
+router.use('/:redeemId/items', redeemItemRoute)
+
+
+export default router

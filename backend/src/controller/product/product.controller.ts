@@ -59,7 +59,7 @@ export const createProduct = async (req: Request<{}, {}, CreateProductInput>, re
 export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id)
-        if (isNaN(id)) {
+        if (Number.isNaN(id)) {
             throw new AppError("Invalid product ID", 400)
         }
 
@@ -74,7 +74,7 @@ export const getProductById = async (req: Request, res: Response, next: NextFunc
 export const toggleProductActive = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id)
-        if (isNaN(id)) {
+        if (Number.isNaN(id)) {
             throw new AppError("Invalid product ID", 400)
         }
         const data = await toggleProductActiveService(id)

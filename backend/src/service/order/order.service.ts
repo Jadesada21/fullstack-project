@@ -12,14 +12,7 @@ import { Role } from '../../types/users.type'
 
 export const getAllOrderService = async () => {
     const sql = `select 
-    id,
-    user_id,
-    order_number,
-    total_price,
-    earned_points,
-    status,
-    created_at,
-    updated_at
+    *
     from orders 
     order by created_at desc`
 
@@ -45,7 +38,7 @@ export const createOrderService = async (
 
         // lock row เพื่อกัน race condition
         const productResult = await client.query(`
-            select id , price , reward_points , stock , is_active
+            select id , price , name,  reward_points , stock , is_active
             from products   
             where id = any($1)    
             for update
@@ -84,7 +77,7 @@ export const createOrderService = async (
             }
 
             if (product.stock < totalQty) {
-                throw new AppError("Instufficient stock", 400)
+                throw new AppError("Insufficient stock", 400)
             }
         }
 
@@ -126,7 +119,7 @@ export const createOrderService = async (
             )
 
             if (result.rowCount === 0) {
-                throw new AppError("Instufficient stock", 400)
+                throw new AppError("Insufficient stock", 400)
             }
         }
 
@@ -209,7 +202,7 @@ export const updateStatusOrderService = async (
         const itemsResult = await client.query(`
             select product_id , quantity
             from order_items
-            where id = $1
+            where order_id = $1
             `, [orderId]
         )
 
@@ -225,6 +218,7 @@ export const updateStatusOrderService = async (
                     select stock
                     from products
                     where id =$1
+                    for update
                     `, [item.product_id])
 
                 const product = productResult.rows[0]
@@ -244,20 +238,27 @@ export const updateStatusOrderService = async (
                 // stock movement out
                 await client.query(`
                         insert into stock_movements
-                        (product_id , order_id ,quantity , movement_type)
-                        values($1,$2,$3,'out')
-                        `, [item.product_id, order.id, item.quantity])
+                        (
+                        item_type,
+                        item_id,
+                        quantity,
+                        movement_type,
+                        reference_type,
+                        reference_id
+                        )
+                        values($1,$2,'order','order',$3)
+                        `, [item.product_id, -item.quantity, orderId])
             }
 
             // get points
             if (order.earned_points > 0) {
                 await client.query(`
-                      insert into collect_point_history
-                (user_id , order_id , points ,source )
-                values($1,$2,$3,'order')
+                      insert into point_histories
+                (user_id , points ,source , reference_type , reference_id )
+                values($1,$2,'order','order',$3)
                 returning *
                 `,
-                    [order.user_id, orderId, order.earned_points]
+                    [order.user_id, order.earned_points, orderId]
                 )
 
                 await client.query(`
@@ -281,13 +282,14 @@ export const updateStatusOrderService = async (
                     where id =$2
                     `, [item.quantity, item.product_id])
 
-                // stock movement in
+
+                // stock movement return
                 await client.query(`
                insert into stock_movements
-               (product_id , order_id ,quantity , movement_type)
-               values($1,$2,$3,'in')
+               (item_type, item_id,quantity,movement_type , reference_type , reference_id)
+               values('product' , $1 , $2 ,'cancel' , 'order' , $3)
                 `,
-                    [item.product_id, orderId, item.quantity]
+                    [item.product_id, item.quantity, orderId]
                 )
             }
 
@@ -296,8 +298,8 @@ export const updateStatusOrderService = async (
             await client.query(`
                     update orders
                     set status = $1,
-                        updated_at = $2
-                        where id = $3
+                        updated_at = now()
+                        where id = $2
                     `, [newStatus, orderId])
         }
         await client.query("COMMIT")
@@ -332,6 +334,7 @@ export const getOrderByUserIdService = async (loginUserId: number) => {
     const response = await pool.query(`
    select 
             o.id as order_id,
+            o.order_number,
             o.status,
             o.total_price,
             o.created_at,
@@ -347,10 +350,12 @@ export const getOrderByUserIdService = async (loginUserId: number) => {
              '[]'
         ) as items
         from orders o 
-        left join order_items oi on oi.order_id = o.id
-        left join products p on p.id = oi.product_id
+        left join order_items oi 
+                on oi.order_id = o.id
+        left join products p 
+                on p.id = oi.product_id
         where o.user_id = $1
-        group by o.id, o.status, o.total_price, o.created_at
+        group by o.id
         order by o.created_at desc
     `, [loginUserId])
 

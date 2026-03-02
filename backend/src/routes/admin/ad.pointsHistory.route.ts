@@ -3,7 +3,7 @@ import { Router } from 'express'
 import {
     getAllPointsHistory,
     getPointsHistoryByUserId
-} from '../../controller/pointHistory.controller'
+} from '../../controller/pointHistories.controller'
 
 const router = Router()
 

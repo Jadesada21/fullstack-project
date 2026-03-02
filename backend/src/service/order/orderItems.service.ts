@@ -3,7 +3,7 @@ import { Role } from '../../types/users.type'
 import { AppError } from '../../util/AppError'
 
 
-export const getOrderItemByOrderIdService = async (orderId: number, userId: number, role: Role) => {
+export const getOrderItemByUserIdService = async (orderId: number, userId: number, role: Role) => {
     let sql
     let values
 
@@ -16,7 +16,7 @@ export const getOrderItemByOrderIdService = async (orderId: number, userId: numb
         oi.quantity,
         oi.price,
         oi.reward_points
-        from order_item oi
+        from order_items oi
         join products p on p.id = oi.product_id
         where oi.order_id = $1
         order by oi.id
@@ -31,9 +31,9 @@ export const getOrderItemByOrderIdService = async (orderId: number, userId: numb
         oi.quantity,
         oi.price,
         oi.reward_points
-        from order_item oi
+        from order_items oi
         join orders o on o.id = oi.order_id
-        join products p on p.id = op.product_id
+        join products p on p.id = oi.product_id
         where oi.order_id = $1
         and o.user_id = $2
         order by oi.id

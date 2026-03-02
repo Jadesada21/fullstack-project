@@ -2,25 +2,25 @@ import { NextFunction, Request, Response } from 'express'
 import { AppError } from '../../util/AppError'
 
 import {
-    getOrderItemByOrderIdService
+    getOrderItemByUserIdService
 } from '../../service/order/orderItems.service'
 
 
-export const getOrderItemByOrderId = async (req: Request, res: Response, next: NextFunction) => {
+export const getOrderItemByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const orderId = Number(req.params.orderId)
 
         if (Number.isNaN(orderId)) {
-            return res.status(400).json({ status: "Failed", message: "Invalid order id" })
+            throw new AppError("Invalid order id", 400)
         }
 
         if (!req.user) {
-            return res.sendStatus(401)
+            throw new AppError("Unauthorized", 401)
         }
 
         const { id: userId, role } = req.user
 
-        const data = await getOrderItemByOrderIdService(userId, orderId, role)
+        const data = await getOrderItemByUserIdService(orderId, userId, role)
 
         return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
