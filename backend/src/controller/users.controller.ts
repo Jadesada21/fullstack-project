@@ -6,6 +6,8 @@ import {
     getAllUsersAddressService,
     createUsersAddressByIdService,
     updateAddressUserByIdService,
+    getAllMyAddressService,
+    setdefaultAddressService
 } from '../service/users.service'
 
 
@@ -122,6 +124,31 @@ export const updateAddressUsersById = async (req: Request<{ id: string }, {}, Up
         const updated = await updateAddressUserByIdService(userId, addressId, req.body)
 
         res.status(200).json({ status: "Success", data: updated })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const getAllMyAddress = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const data = await getAllMyAddressService(req.user!.id)
+        return res.status(200).json({ status: "Success", data: data })
+    } catch (err) {
+        next(err)
+    }
+
+}
+
+export const setdefaultAddress = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const addressId = Number(req.params.id)
+        if (Number.isNaN(addressId)) {
+            throw new AppError("Invalid address Id ", 400)
+        }
+
+        const userId = req.user!.id
+        const data = await setdefaultAddressService(userId, addressId)
+        return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }

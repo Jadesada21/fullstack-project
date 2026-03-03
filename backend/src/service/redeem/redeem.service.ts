@@ -353,7 +353,7 @@ export const getRedeemByIdService = async (
     )
 
     if (response.rowCount === 0) {
-        throw new AppError("Redeem not found", 400)
+        throw new AppError("Redeem not found", 404)
     }
 
     return response.rows[0]
@@ -391,4 +391,18 @@ export const getRedeemByUserIdService = async (
         `, [loginUserId])
 
     return response.rows
+}
+
+export const adminGetRedeemByIdService = async (
+    redeemId: number
+) => {
+    const response = await pool.query(`
+        select * from redeems
+        where id = $1
+        `, [redeemId])
+    if (response.rowCount === 0) {
+        throw new AppError("Redeem not found", 404)
+    }
+
+    return response.rows[0]
 }

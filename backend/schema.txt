@@ -213,7 +213,7 @@ create table users_address(
     district varchar(255) not null,
     subdistrict varchar(255) not null
     postal_code varchar(100) not null,
-    is_default boolean default false,
+    is_default boolean default false not null,
     created_at timestamp default current_timestamp not null,
     updated_at timestamp default current_timestamp not null,
     foreign key (user_id) references users(id) on delete cascade

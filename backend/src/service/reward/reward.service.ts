@@ -41,7 +41,7 @@ export const getAllRewardService = async (role?: string) => {
         ri.image_url
         from rewards r
         left join reward_images ri 
-        on rid.reward_id = r.id 
+        on ri.reward_id = r.id 
         and ri.is_primary = true
         where r.is_active = true
         order by r.created_at desc`

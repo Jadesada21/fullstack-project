@@ -130,7 +130,12 @@ export const uploadImageRewardByIdService = async (
 
 export const getImageRewardByIdService = async (id: number) => {
     const response = await pool.query(
-        `select * from rewards where id = $1`,
+        `select
+        image_url,
+        is_primary,
+        sort_order,
+        created_at
+        from rewards where id = $1`,
         [id]
     )
     if (response.rowCount === 0) {

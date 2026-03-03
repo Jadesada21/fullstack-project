@@ -2,7 +2,7 @@ import { Router } from 'express'
 
 import {
     getAllRedeem,
-    getRedeemById
+    adminGetRedeemById
 } from '../../controller/redeem/redeem.controller'
 
 
@@ -14,7 +14,7 @@ router.route('/')
 
 
 router.route('/:id')
-    .get(getRedeemById)
+    .get(adminGetRedeemById)
 
 
 export default router

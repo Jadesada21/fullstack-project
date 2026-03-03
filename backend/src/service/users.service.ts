@@ -211,3 +211,52 @@ export const updateAddressUserByIdService = async (userId: number, id: number, b
         client.release()
     }
 }
+
+export const getAllMyAddressService = async (userId: number) => {
+    const response = await pool.query(`
+        select * from users_addresses
+        where user_id =$1
+        `, [userId,])
+
+    if (response.rowCount === 0) {
+        throw new AppError("Addresses not found", 400)
+    }
+
+    return response.rows
+}
+
+export const setdefaultAddressService = async (userId: number, addressId: number) => {
+    const client = await pool.connect()
+    try {
+        await client.query("BEGIN")
+
+        // off default all address
+        await client.query(`
+            update users_addresses
+            set is_default = case
+                when id = $1 then true
+                else false
+            end
+            where user_id = $2
+            `, [addressId, userId])
+
+
+        const result = await client.query(`
+            select * from users_addresses where id = $1 and user_id = $2
+            `, [addressId, userId])
+
+        if (result.rowCount === 0) {
+            throw new AppError("Address not found", 404)
+        }
+
+        await client.query("COMMIT")
+
+        return result.rows[0]
+
+    } catch (err) {
+        await client.query("ROLLBACK")
+        throw err
+    } finally {
+        client.release()
+    }
+}
