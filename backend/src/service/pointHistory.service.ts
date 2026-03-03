@@ -12,7 +12,7 @@ export const getAllPointsHistoryService = async (userId?: number, limit = 20) =>
         ph.reference_type,
         ph.reference_id,
         ph.created_at
-        from points_history ph
+        from point_histories ph
     `
     const values: any[] = []
 
@@ -38,7 +38,7 @@ export const getPointsHistoryByUserIdService = async (
 
     const response = await pool.query(`
         select *
-        from points_history
+        from point_histories
         where user_id = $1
         order by created_at desc
         limit $2

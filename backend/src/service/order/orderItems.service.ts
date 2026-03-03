@@ -6,7 +6,6 @@ import { AppError } from '../../util/AppError'
 export const getOrderItemByUserIdService = async (orderId: number, userId: number, role: Role) => {
     let sql
     let values
-
     if (role === 'admin') {
         sql = `select 
         oi.id,
@@ -15,7 +14,7 @@ export const getOrderItemByUserIdService = async (orderId: number, userId: numbe
         p.name,
         oi.quantity,
         oi.price,
-        oi.reward_points
+        oi.total_points
         from order_items oi
         join products p on p.id = oi.product_id
         where oi.order_id = $1
@@ -30,7 +29,7 @@ export const getOrderItemByUserIdService = async (orderId: number, userId: numbe
         p.name,
         oi.quantity,
         oi.price,
-        oi.reward_points
+        oi.total_points
         from order_items oi
         join orders o on o.id = oi.order_id
         join products p on p.id = oi.product_id

@@ -1,4 +1,5 @@
 import { Router } from 'express'
+const router = Router({ mergeParams: true })
 
 import {
     getOrderItemByOrderIdandUserId
@@ -6,7 +7,6 @@ import {
 
 import { authorize } from '../../../middleware/authorize'
 
-const router = Router()
 
 router.route('/')
     .get(authorize(['admin', 'customer']), getOrderItemByOrderIdandUserId)

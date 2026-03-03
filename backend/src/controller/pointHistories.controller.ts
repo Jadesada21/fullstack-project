@@ -59,7 +59,7 @@ export const getPointsHistoryByUserId = async (req: Request, res: Response, next
 
 export const getMyPointsHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const loginUserId = Number(req.user!.id)
+        const loginUserId = req.user!.id
 
         const data = await getPointsHistoryByUserIdService(loginUserId, 10)
         return res.status(200).json({ status: "Success", data: data })

@@ -119,6 +119,7 @@ export const getProductByIdService = async (id: number, role?: Role | 'guest') =
         p.name,
         p.short_description,
         p.price,
+        p.reward_points as points,
         pi.image_url
     from products p
     left join product_images pi 

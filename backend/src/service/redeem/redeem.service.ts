@@ -297,7 +297,10 @@ export const updateStatusRedeemService = async (
                         reference_id
                         )
                         values('reward', $1,$2 ,'cancel', 'redeem', $3)
-                        `, [item.reward_id, item.quantity, redeemId])
+                        `, [
+                    'reward',
+                    item.reward_id, item.quantity, redeemId
+                ])
             }
 
             // restore points

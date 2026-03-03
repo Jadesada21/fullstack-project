@@ -289,6 +289,27 @@ before update on redeems
 for each row
 execute function set_updated_at();
 
+
+// trigger order_number
+
+create or replace function generate_order_number()
+returns trigger as $$
+begin
+    new.order_number :=
+        'ORD-' || lpad(new.id::text, 6, '0');
+    return new;
+end;
+$$ language plpgsql;
+
+//สร้างปุ่ม trigger สำหรับ order_number
+
+create trigger trg_generate_order_number
+before insert on orders
+for each row
+execute function generate_order_number();
+
+
+
 // primary = sort_order 1
 
 alter table product_images

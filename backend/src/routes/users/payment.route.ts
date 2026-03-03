@@ -1,9 +1,10 @@
 import { Router } from 'express'
 
 import {
+    createPayment,
     comfirmPayment,
     cancelledPayment,
-    getPaymentById,
+    getPaymentById
 } from '../../controller/payment.controller'
 
 import {
@@ -12,6 +13,8 @@ import {
 
 const router = Router()
 
+router.route('/:orderId')
+    .post(authorize(['customer']), createPayment)
 
 router.route('/:paymentId/')
     .get(authorize(['admin', 'customer']), getPaymentById)

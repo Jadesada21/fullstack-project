@@ -76,13 +76,9 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
 
 export const getOrderByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = Number(req.params.id)
+        const loginUserId = req.user!.id
 
-        if (Number.isNaN(userId) || userId < 0) {
-            throw new AppError("Invalid user id", 400)
-        }
-
-        const data = await getOrderByUserIdService(userId)
+        const data = await getOrderByUserIdService(loginUserId)
         return res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)

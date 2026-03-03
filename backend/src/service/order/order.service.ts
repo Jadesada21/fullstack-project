@@ -92,12 +92,8 @@ export const createOrderService = async (
         // สร้าง Order
         const orderResult = await client.query(`
             insert into orders
-             (user_id, order_number, total_price, earned_points, status)
-        values($1,
-        'ORD-' || lpad(nextval('order_number')::text, 6 , '0'),
-        $2,
-        $3,
-        'pending'
+             (user_id,  total_price, earned_points, status)
+        values($1,$2,$3,'pending'
         )
         returning *`,
             [loginUserId, totalPrice, totalPoints]
@@ -124,20 +120,20 @@ export const createOrderService = async (
         }
 
         // insert order_items
-        for (const item of items) {
-            const product = productMap.get(item.product_id)
+        for (const [productId, totalQty] of quantityMap.entries()) {
+            const product = productMap.get(productId)
 
             await client.query(`
                 insert into order_items
-                (order_id , product_id , quantity , price  , reward_points)
+                (order_id , product_id , quantity , price  , total_points)
                 values($1,$2,$3,$4,$5)
                 `,
                 [
                     order.id,
-                    item.product_id,
-                    item.quantity,
+                    productId,
+                    totalQty,
                     product.price,
-                    product.reward_points
+                    product.reward_points * totalQty
                 ]
             )
         }
@@ -231,7 +227,7 @@ export const updateStatusOrderService = async (
                 await client.query(`
                     update products
                     set stock = stock - $1
-                    where id =$ 2
+                    where id = $2
                     `, [item.quantity, item.product_id])
 
 
@@ -246,16 +242,23 @@ export const updateStatusOrderService = async (
                         reference_type,
                         reference_id
                         )
-                        values($1,$2,'order','order',$3)
-                        `, [item.product_id, -item.quantity, orderId])
+                        values($1,$2,$3,$4,$5,$6)
+                        `, [
+                    'product',
+                    item.product_id,
+                    -item.quantity,
+                    'order',
+                    'order',
+                    orderId
+                ])
             }
 
             // get points
             if (order.earned_points > 0) {
                 await client.query(`
                       insert into point_histories
-                (user_id , points ,source , reference_type , reference_id )
-                values($1,$2,'order','order',$3)
+                (user_id , points , source , reference_type , reference_id )
+                values($1,$2,'order_earn','order',$3)
                 returning *
                 `,
                     [order.user_id, order.earned_points, orderId]
@@ -263,7 +266,7 @@ export const updateStatusOrderService = async (
 
                 await client.query(`
                     update users
-                    set total_points = total_points + $1
+                    set points = points + $1
                     where id = $2
             `,
                     [order.earned_points, order.user_id]
@@ -344,7 +347,8 @@ export const getOrderByUserIdService = async (loginUserId: number) => {
                     'product_id', p.id,
                     'name', p.name,
                     'quantity', oi.quantity,
-                    'price', oi.price
+                    'price', oi.price,
+                    'total_points' , oi.total_points
                 )
             ) filter (where oi.id is not null),
              '[]'
@@ -355,8 +359,14 @@ export const getOrderByUserIdService = async (loginUserId: number) => {
         left join products p 
                 on p.id = oi.product_id
         where o.user_id = $1
-        group by o.id
-        order by o.created_at desc
+        group by 
+        o.id,
+        o.order_number,
+        o.status,
+        o.total_price,
+        o.earned_points,
+        o.created_at
+    order by o.created_at desc
     `, [loginUserId])
 
     return response.rows
