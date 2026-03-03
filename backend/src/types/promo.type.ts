@@ -3,7 +3,7 @@
 export interface PromoCodeTypeResponse {
     id: number
     code: string
-    points: number
+    bonus_points: number
     max_usage: number
     used_count: number
     is_active: boolean
@@ -12,6 +12,6 @@ export interface PromoCodeTypeResponse {
 
 export interface PromoCodeTypeInput {
     code: string
-    points: number
+    bonus_points: number
     max_usage: number
 }

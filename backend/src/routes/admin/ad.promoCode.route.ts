@@ -19,7 +19,4 @@ router.route('/:id')
     .get(getPromoCodeById)
     .patch(togglePromoCodeActive)
 
-
-// ***************** promo-code-usage
-
 export default router

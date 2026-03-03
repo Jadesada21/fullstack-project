@@ -30,6 +30,7 @@ export const createPayment = async (req: Request, res: Response, next: NextFunct
 
         const userId = req.user!.id
 
+
         const payment = await createPaymentService(orderId, userId)
         return res.status(201).json({ status: "Success", data: payment })
     } catch (err) {

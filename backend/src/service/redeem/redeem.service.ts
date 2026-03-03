@@ -342,8 +342,6 @@ export const updateStatusRedeemService = async (
 
 export const getRedeemByIdService = async (
     redeemId: number,
-    loginUserId: number,
-    role: Role
 ) => {
     const response = await pool.query(
         `select * 

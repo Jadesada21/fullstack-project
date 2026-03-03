@@ -17,7 +17,7 @@ export const getAllPromoCodeService = async () => {
 
 export const createPromoCodeService = async (body: PromoCodeTypeInput): Promise<PromoCodeTypeResponse> => {
 
-    const { code, points, max_usage } = body
+    const { code, bonus_points, max_usage } = body
 
     const normalizedCode = code.trim().toUpperCase()
 
@@ -27,7 +27,7 @@ export const createPromoCodeService = async (body: PromoCodeTypeInput): Promise<
         (code , points , max_usage)
         values($1,$2,$3)
         returning *
-        `, [normalizedCode, points, max_usage])
+        `, [normalizedCode, bonus_points, max_usage])
 
         return response.rows[0]
     } catch (err: any) {
