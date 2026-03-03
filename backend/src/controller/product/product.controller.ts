@@ -31,16 +31,28 @@ export const createProduct = async (req: Request<{}, {}, CreateProductInput>, re
         const { name, description, short_description, price, stock, reward_points, category_id, roast_level } = req.body
 
         if (
-            !name ||
-            !short_description ||
-            !description ||
+            name === undefined ||
+            description === undefined ||
+            short_description === undefined ||
             price === undefined ||
             stock === undefined ||
-            reward_points ||
+            reward_points === undefined ||
             category_id === undefined ||
             roast_level === undefined
         ) {
             throw new AppError("Missing required field", 400)
+        }
+
+        if (
+            typeof name !== "string" || name.trim() === "" ||
+            typeof short_description !== "string" || short_description.trim() === "" ||
+            typeof description !== "string" || description.trim() === "" ||
+            typeof price !== "number" || Number.isInteger(price) || price <= 0 ||
+            typeof stock !== "number" || Number.isInteger(stock) || stock < 0 ||
+            typeof reward_points !== "number" || Number.isInteger(reward_points) || reward_points < 0 ||
+            typeof category_id !== "number" || Number.isInteger(category_id) ||
+        ) {
+            throw new AppError("Invalid input", 400)
         }
 
         const validRoastLevels: RoastLevel[] = ['light', 'medium', 'dark']

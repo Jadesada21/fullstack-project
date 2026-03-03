@@ -15,7 +15,7 @@ import pointHistoryRoute from './users/pointHistory.route'
 import paymentRoute from './users/payment.route'
 import redeemRoute from './users/redeemRoute/redeem.route'
 
-import adminStockmoveRoute from './admin/ad.stock_move.route'
+import adminStockMoveRoute from './admin/ad.stockMove.route'
 import adminAddressesRoute from './admin/ad.addresses.route'
 import adminUserRoute from './admin/ad.users.route'
 import adminCategoryRoute from './admin/ad.category.route'
@@ -25,6 +25,7 @@ import adminOrderRoute from './admin/ad.order.route'
 import adminPointHistoryRoute from './admin/ad.pointsHistory.route'
 import adminPaymentRoute from './admin/ad.payment.route'
 import adminRedeemRoute from './admin/ad.redeem.route'
+import adminPromoCodeRoute from './admin/ad.promoCode.route'
 
 import { authenticate } from '../middleware/authenticate'
 import { authorize } from '../middleware/authorize'
@@ -48,7 +49,7 @@ router.use('/users', userRoute)
 router.use('/addresses', addressRoute)
 router.use('/orders', orderRoute)
 router.use('/points-histories', pointHistoryRoute)
-router.use('/payment', paymentRoute)
+router.use('/payments', paymentRoute)
 router.use('/redeems', redeemRoute)
 
 
@@ -62,9 +63,10 @@ router.use('/admin/products', adminProductRoute)
 router.use('/admin/rewards', adminRewardRoute)
 router.use('/admin/orders', adminOrderRoute)
 router.use('/admin/points-histories', adminPointHistoryRoute)
-router.use('/admin/payment', adminPaymentRoute)
-router.use('/admin/stock_move', adminStockmoveRoute)
+router.use('/admin/payments', adminPaymentRoute)
+router.use('/admin/stock_moves', adminStockMoveRoute)
 router.use('/admin/redeems', adminRedeemRoute)
+router.use('/admin/promo-codes', adminPromoCodeRoute)
 
 
 export default router
