@@ -8,13 +8,13 @@ interface ShopLinksProps {
 export default function ShopLinks({ title, links }: ShopLinksProps) {
     return (
         <div>
-            <p className="mb-4 text-gray-500">
+            <p className="mb-4 text-gray-500 font-baskerville">
                 {title}
             </p>
 
-            <ul className="space-y-3">
+            <ul className="space-y-3 ">
                 {links.map((l) => (
-                    <li key={l.to}>
+                    <li key={l.to} className="font-baskerville pt-2">
                         <Link
                             to={l.to}
                             className="relative inline-block cursor-pointer
@@ -22,7 +22,7 @@ export default function ShopLinks({ title, links }: ShopLinksProps) {
                         after:h-px after:w-full after:bg-black
                         after:origin-left after:scale-x-0
                         after:transition-transform after:duration-300
-                        hover:after:scale-x-100"
+                        hover:after:scale-x-100 "
                         >
                             {l.label}
                         </Link>

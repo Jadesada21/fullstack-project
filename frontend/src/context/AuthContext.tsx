@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 
+import { api } from '../axiosInstance'
+
 type User = {
     id: number
     username: string
@@ -21,14 +23,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
 
-    axios.defaults.withCredentials = true
-
     // check login when refresh or close tab
     useEffect(() => {
 
         const fetchUser = async () => {
             try {
-                const res = await axios.get("http://localhost:6060/api/auth/me")
+                const res = await api.get('/auth/me')
 
                 setUser(res.data.user)
             } catch (err) {
@@ -42,16 +42,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // login 
     const login = async (username: string, password: string) => {
-        const res = await axios.post(
-            "http://localhost:6060/api/login",
-            { username, password }
-        )
+        const res = await api.post("/auth/login",
+            { username, password })
         setUser(res.data.user)
     }
 
     const logout = async () => {
-        await axios.post(
-            "http://localhost:6060/api/logout"
+        await api.post(
+            "/auth/logout"
         )
         setUser(null)
     }
