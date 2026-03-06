@@ -108,7 +108,7 @@ export default function LoginModal({ close }: { close: () => void }) {
                                     <button
                                         type='button'
                                         onClick={close}
-                                        className="w-full h-[52px] px-6 border border-[rgba(37,37,37,0.25)] text-charcoal-600 text-body-16 rounded-lg hover:bg-charcoal-50 transition-colors flex items-center justify-center "
+                                        className="w-full h-13 px-6 border border-[rgba(37,37,37,0.25)] text-charcoal-600 text-body-16 rounded-lg hover:bg-charcoal-50 transition-colors flex items-center justify-center"
                                     > Close
                                     </button>
                                 </div>
