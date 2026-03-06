@@ -10,10 +10,15 @@ type User = {
 
 type AuthContextType = {
     user: User | null
-    login: (username: string, password: string) => Promise<void>
-    logout: () => void
+    loginAndRedirect: (
+        username: string,
+        password: string,
+        navigate: (path: string) => void
+    ) => Promise<void>
+    logout: () => Promise<void>
     loading: boolean
 }
+
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
@@ -40,10 +45,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, [])
 
     // login 
-    const login = async (username: string, password: string) => {
-        const res = await api.post("/auth/login",
-            { username, password })
-        setUser(res.data.user)
+    const loginAndRedirect = async (
+        username: string,
+        password: string,
+        navigate: (path: string) => void
+    ) => {
+        await api.post("/auth/login", { username, password })
+
+        const res = await api.get('/auth/me')
+        const user = res.data.user
+        setUser(user)
+
+        if (user.role === 'admin') {
+            navigate('/admin')
+        } else {
+            navigate('/')
+        }
     }
 
     const logout = async () => {
@@ -55,7 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <AuthContext.Provider
-            value={{ user, login, logout, loading }}>
+            value={{ user, loginAndRedirect, logout, loading }}>
             {children}
         </AuthContext.Provider>
     )

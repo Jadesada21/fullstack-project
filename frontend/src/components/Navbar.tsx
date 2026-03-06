@@ -5,11 +5,10 @@ import profile from '../assets/profile.svg';
 import OpenBox from "./isopen/OpenBox";
 import ShopDropdown from './dropdown/shop/ShopDropdown';
 
-import { useState } from 'react';
+import LoginModal from '../pages/login-out/LoginModal';
 
-export default function Navbar() {
+export default function Navbar({ openLogin }: { openLogin: () => void }) {
 
-    const [isOpen, setIsOpen] = useState(false)
 
     return (
         <div className="flex items-center justify-between py-5 px-10 w-full h-20 border-b border-gray-400 bg-[#f7f5ef] ">
@@ -47,8 +46,7 @@ export default function Navbar() {
                     <img src={searchIcon} alt="search" className="w-9" />
                 </button>
 
-
-                <button>
+                <button onClick={(openLogin)}>
                     <img src={profile} alt="profile" className="w-8" />
                 </button>
 
