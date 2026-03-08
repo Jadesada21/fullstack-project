@@ -65,14 +65,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const logout = async (navigate: (path: string) => void) => {
+    const logout = async () => {
         try {
             await api.post("/logout")
         } catch (err) {
             console.error(err)
         }
+        // clear user
         setUser(null)
-        navigate('/')
     }
 
     return (

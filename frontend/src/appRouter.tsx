@@ -23,9 +23,6 @@ import ProfilesPage from "./pages/ProfilesPage";
 import AdminPage from "./pages/AdminPage";
 
 
-
-
-
 export default function AppRouter() {
 
 

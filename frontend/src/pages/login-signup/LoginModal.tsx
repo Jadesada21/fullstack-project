@@ -49,7 +49,7 @@ export default function LoginModal({ close }: { close: () => void }) {
                                         `}>
                             <input
                                 type="text"
-                                placeholder='username'
+                                placeholder='Username'
                                 value={username}
                                 onChange={(e) => {
                                     setUsername(e.target.value)
@@ -75,7 +75,7 @@ export default function LoginModal({ close }: { close: () => void }) {
                                         `}>
                             <input
                                 type={showPassword ? "text" : "password"}
-                                placeholder='password'
+                                placeholder='Password'
                                 value={password}
                                 onChange={(e) => {
                                     setPassword(e.target.value)
