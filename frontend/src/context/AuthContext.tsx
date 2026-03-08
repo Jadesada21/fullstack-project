@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         navigate: (path: string) => void
     ) => {
         try {
-            const res = await api.post("/auth/login", { username, password })
+            const res = await api.post("/login", { username, password })
 
             const user = res.data.user
             setUser(user)
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const logout = async (navigate: (path: string) => void) => {
         try {
-            await api.post("/auth/logout")
+            await api.post("/logout")
         } catch (err) {
             console.error(err)
         }

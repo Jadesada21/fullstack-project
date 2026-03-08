@@ -3,6 +3,7 @@ import { Router } from 'express'
 import loginRoute from './public-route/login-out-RegisRoute/login.route'
 import registerRoute from './public-route/login-out-RegisRoute/register.route'
 import logoutRoute from './public-route/login-out-RegisRoute/logout.route'
+import getMeRefresh from './public-route/login-out-RegisRoute/getMeRefresh.route'
 
 import userRoute from './users/users.route'
 import categoryRoute from './users/category.route'
@@ -45,7 +46,7 @@ router.use('/rewards', rewardsRoute)
 // verify route
 // users route
 router.use(authenticate)
-
+router.use(getMeRefresh)
 
 router.use('/logout', logoutRoute)
 router.use('/users', userRoute)
