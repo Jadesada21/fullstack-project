@@ -54,18 +54,17 @@ export const updateUsersById = async (req: Request, res: Response, next: NextFun
     try {
 
         const targetUserId = Number(req.params.id)
-        if (isNaN(targetUserId)) {
+        if (Number.isNaN(targetUserId)) {
             throw new AppError("Invalid user ID", 400)
         }
 
-        const { phone_num } = req.body
+        const { first_name, last_name, phone_num } = req.body
 
-        if (!phone_num) {
-            throw new AppError("Phone Number is required", 400)
+        if (!first_name && !last_name && !phone_num) {
+            throw new AppError("No field to update", 400)
         }
 
-
-        const responese = await updateUsersByIdService(targetUserId, req.user!.id, { phone_num })
+        const responese = await updateUsersByIdService(targetUserId, req.user!.id, { first_name, last_name, phone_num })
 
         return res.status(200).json({ status: "Success", responese })
     } catch (err) {
@@ -96,6 +95,10 @@ export const addUsersAddressById = async (req: Request<{}, {}, AddUsersAddressBy
 
         if (!address_line || !country || !province || !district || !subdistrict || !postal_code) {
             throw new AppError("Missing required field", 400)
+        }
+
+        if (address_line || country || province || district || subdistrict || postal_code.length > 50) {
+            throw new AppError("Input must not exceed 50 characters", 400)
         }
 
         const newAddress = await createUsersAddressByIdService(userId, req.body)

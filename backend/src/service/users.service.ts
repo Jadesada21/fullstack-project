@@ -25,7 +25,7 @@ export const getAllUsersService = async () => {
         phone_num,
         role,
         is_active,
-        total_points,
+        points,
         created_at,
         updated_at
         from users order by id desc`
@@ -53,15 +53,17 @@ export const getUsersByIdService = async (targetUserId: number, loginUserId: num
 
 
 export const updateUsersByIdService = async (targetUserId: number, loginUserId: number, body: UpdateUsersPhoneInput) => {
-    const { phone_num } = body
+    const { first_name, last_name, phone_num } = body
 
     const response = await pool.query(
         `update users
-        set phone_num = $1
-        where id = $2
-        and id =$3
-        returning id ,phone_num`,
-        [phone_num, targetUserId, loginUserId]
+        set phone_num = $1,
+        first_name = $2,
+        last_name = $3
+        where id = $4
+        and id =$5
+        returning id ,first_name , last_name , phone_num`,
+        [phone_num, first_name, last_name, targetUserId, loginUserId]
     )
 
     if (response.rowCount === 0) {

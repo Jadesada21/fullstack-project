@@ -217,8 +217,8 @@ export const getOrderByUserIdService = async (loginUserId: number) => {
                     'product_id', p.id,
                     'name', p.name,
                     'quantity', oi.quantity,
-                    'price', oi.price,
-                    'total_points' , oi.total_points
+                    'price per 1 items', oi.price,
+                    'total points' , oi.total_points
                 )
             ) filter (where oi.id is not null),
              '[]'

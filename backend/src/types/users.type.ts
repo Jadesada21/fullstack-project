@@ -25,6 +25,8 @@ export interface UsersResponse {
 }
 
 export interface UpdateUsersPhoneInput {
+    first_name: string
+    last_name: string
     phone_num: string
 }
 

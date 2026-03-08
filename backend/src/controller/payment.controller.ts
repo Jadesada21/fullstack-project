@@ -52,7 +52,7 @@ export const updatePaymentStatus = async (req: Request, res: Response, next: Nex
 
         const { status } = req.body
 
-        const allowedStatuses: PaymentUpdateStatus[] = ["completed", "failed"]
+        const allowedStatuses: PaymentUpdateStatus[] = ["completed", "cancelled"]
 
         if (!allowedStatuses.includes(status)) {
             throw new AppError("Invalid payment status", 400)
