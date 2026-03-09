@@ -3,7 +3,8 @@ import { Router } from 'express'
 import {
     createOrder,
     cancelOrder,
-    getOrderByUserId
+    getAllOrderByLoginUser,
+    getOrderById
 } from '../../../controller/order/order.controller'
 
 import orderItemRoute from './orderItems.route'
@@ -22,7 +23,10 @@ router.route('/')
     .post(authorize(['customer']), createOrder)
 
 router.route('/me')
-    .get(authorize(['customer']), getOrderByUserId)
+    .get(authorize(['customer']), getAllOrderByLoginUser)
+
+router.route('/:id')
+    .get(authorize(['customer']), getOrderById)
 
 router.route('/:id/cancel')
     .patch(authorize(['customer']), cancelOrder)

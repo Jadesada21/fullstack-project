@@ -3,7 +3,7 @@ import { AppError } from "../util/AppError"
 
 export const getMeRefreshService = async (userId: number) => {
     const result = await pool.query(`
-        select  id , username  , role ,created_at
+        select  id , username  , role 
         from users
         where id = $1
         `, [userId])

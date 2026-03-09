@@ -17,7 +17,7 @@ import ShopPage from "./pages/shop/ShopPage"
 import RewardPage from "./pages/reward/RewardPage"
 import AboutUsPage from "./pages/AboutUs";
 import ContactUsPage from "./pages/ContactUs";
-import ProfilesPage from "./pages/ProfilesPage";
+import ProfilesPage from "./pages/profiles/ProfilesPage";
 
 
 import AdminPage from "./pages/AdminPage";
@@ -39,7 +39,7 @@ export default function AppRouter() {
 
                 <Navbar />
 
-                <main className="grow">
+                <main className="flex-1">
                     <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/shops" element={<ShopPage />} />

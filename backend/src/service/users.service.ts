@@ -3,7 +3,6 @@ import { AppError } from '../util/AppError'
 
 
 import {
-    Role,
     UpdateUsersPhoneInput,
 } from '../types/users.type'
 
@@ -52,18 +51,18 @@ export const getUsersByIdService = async (targetUserId: number, loginUserId: num
 }
 
 
-export const updateUsersByIdService = async (targetUserId: number, loginUserId: number, body: UpdateUsersPhoneInput) => {
+export const updateUsersByLoginUserService = async (loginUserId: number, body: UpdateUsersPhoneInput) => {
     const { first_name, last_name, phone_num } = body
 
     const response = await pool.query(
         `update users
-        set phone_num = $1,
-        first_name = $2,
-        last_name = $3
+        set 
+            first_name = COALESCE($1, first_name),
+            last_name = COALESCE($2, last_name),
+            phone_num = COALESCE($3, phone_num)
         where id = $4
-        and id =$5
         returning id ,first_name , last_name , phone_num`,
-        [phone_num, first_name, last_name, targetUserId, loginUserId]
+        [first_name, last_name, phone_num, loginUserId]
     )
 
     if (response.rowCount === 0) {
@@ -74,19 +73,6 @@ export const updateUsersByIdService = async (targetUserId: number, loginUserId: 
 }
 
 
-export const getUserByLoginUserService = async (userId: number) => {
-    const result = await pool.query(`
-        select  username , email ,first_name , last_name , phone_num ,points ,created_at
-        from users
-        where id = $1
-        `, [userId])
-
-    if (result.rowCount === 0) {
-        throw new AppError("User not found", 404)
-    }
-
-    return result.rows[0]
-}
 
 
 // *************************** ADDRESS
@@ -162,7 +148,7 @@ export const createUsersAddressByIdService = async (userId: number, body: AddUse
 }
 
 
-export const updateAddressUserByIdService = async (userId: number, id: number, body: UpdateUsersAddressInput) => {
+export const updateAddressUserByLoginUserService = async (userId: number, id: number, body: UpdateUsersAddressInput) => {
     const client = await pool.connect()
     try {
 
@@ -219,6 +205,7 @@ export const updateAddressUserByIdService = async (userId: number, id: number, b
         if (response.rowCount === 0) {
             throw new AppError("Address not found", 404)
         }
+        await client.query("COMMIT")
         return response.rows[0]
 
     } catch (err) {

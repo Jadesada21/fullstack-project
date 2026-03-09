@@ -11,5 +11,4 @@ router.route('/')
     .get(getAllPayment)
 
 
-
 export default router

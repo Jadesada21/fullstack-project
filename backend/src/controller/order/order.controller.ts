@@ -6,7 +6,7 @@ import {
     createOrderService,
     cancelOrderService,
     getOrderByidService,
-    getOrderByUserIdService
+    getAllOrderByLoginUserService
 } from '../../service/order/order.service'
 
 
@@ -69,11 +69,11 @@ export const getOrderById = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
-export const getOrderByUserId = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllOrderByLoginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const loginUserId = req.user!.id
 
-        const data = await getOrderByUserIdService(loginUserId)
+        const data = await getAllOrderByLoginUserService(loginUserId)
         return res.status(200).json({ status: "Success", data })
     } catch (err) {
         next(err)

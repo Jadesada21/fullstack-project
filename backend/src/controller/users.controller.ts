@@ -2,11 +2,10 @@ import { NextFunction, Request, Response } from 'express'
 import {
     getAllUsersService,
     getUsersByIdService,
-    updateUsersByIdService,
+    updateUsersByLoginUserService,
     getAllUsersAddressService,
     createUsersAddressByIdService,
-    updateAddressUserByIdService,
-    getUserByLoginUserService,
+    updateAddressUserByLoginUserService,
     getAllMyAddressService,
     setdefaultAddressService
 } from '../service/users.service'
@@ -51,21 +50,12 @@ export const getUsersById = async (req: Request, res: Response, next: NextFuncti
 }
 
 
-export const updateUsersById = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUsersByLoginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-        const targetUserId = Number(req.params.id)
-        if (Number.isNaN(targetUserId)) {
-            throw new AppError("Invalid user ID", 400)
-        }
+        const loginUserId = req.user!.id
 
-        const { first_name, last_name, phone_num } = req.body
-
-        if (!first_name && !last_name && !phone_num) {
-            throw new AppError("No field to update", 400)
-        }
-
-        const responese = await updateUsersByIdService(targetUserId, req.user!.id, { first_name, last_name, phone_num })
+        const responese = await updateUsersByLoginUserService(req.user!.id, req.body)
 
         return res.status(200).json({ status: "Success", responese })
     } catch (err) {
@@ -74,16 +64,7 @@ export const updateUsersById = async (req: Request, res: Response, next: NextFun
 }
 
 
-export const getUserByLoginUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const loginUserId = req.user!.id
 
-        const user = await getUserByLoginUserService(loginUserId)
-        return res.status(200).json({ status: "Success", user })
-    } catch (err) {
-        next(err)
-    }
-}
 
 
 // ****************************** ADDRESS
@@ -123,7 +104,7 @@ export const addUsersAddressById = async (req: Request<{}, {}, AddUsersAddressBy
 }
 
 
-export const updateAddressUsersById = async (req: Request<{ id: string }, {}, UpdateUsersAddressInput>, res: Response, next: NextFunction) => {
+export const updateAddressUserByLoginUser = async (req: Request<{ id: string }, {}, UpdateUsersAddressInput>, res: Response, next: NextFunction) => {
     try {
         const addressId = Number(req.params.id)
 
@@ -138,7 +119,7 @@ export const updateAddressUsersById = async (req: Request<{ id: string }, {}, Up
         const userId = req.user!.id
 
 
-        const updated = await updateAddressUserByIdService(userId, addressId, req.body)
+        const updated = await updateAddressUserByLoginUserService(userId, addressId, req.body)
 
         res.status(200).json({ status: "Success", updated })
     } catch (err) {

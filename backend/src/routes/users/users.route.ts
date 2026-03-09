@@ -1,9 +1,11 @@
 import { Router } from "express";
 
 import {
-    getUserByLoginUser,
-    updateUsersById,
+    updateUsersByLoginUser,
 } from '../../controller/users.controller'
+
+import { getUserByLoginUser } from "../../controller/user-detail/profiles.controller";
+
 
 import { authorize } from '../../middleware/authorize'
 
@@ -12,11 +14,10 @@ import { authorize } from '../../middleware/authorize'
 
 const router = Router();
 
-
-router.route('/:id')
-    .patch(authorize(['customer']), updateUsersById)
-
 router.route('/me')
     .get(authorize(['customer']), getUserByLoginUser)
+
+router.route('/update')
+    .patch(authorize(['customer']), updateUsersByLoginUser)
 
 export default router;

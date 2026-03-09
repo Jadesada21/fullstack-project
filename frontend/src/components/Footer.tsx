@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
     return (
-        <footer className="bg-zinc-800 text-white px-60 pt-10 pb-5">
+        <footer className="bg-zinc-800 text-white px-60 pt-10 pb-5 ">
 
             {/* <!-- top --> */}
             <div className="flex justify-between">

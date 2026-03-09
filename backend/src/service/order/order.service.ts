@@ -203,7 +203,7 @@ export const getOrderByidService = async (orderId: number, loginUserId: number, 
 }
 
 
-export const getOrderByUserIdService = async (loginUserId: number) => {
+export const getAllOrderByLoginUserService = async (loginUserId: number) => {
     const response = await pool.query(`
    select 
             o.id as order_id,

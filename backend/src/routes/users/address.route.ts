@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import {
     addUsersAddressById,
-    updateAddressUsersById,
+    updateAddressUserByLoginUser,
     getAllMyAddress,
     setdefaultAddress
 } from '../../controller/users.controller'
@@ -18,8 +18,8 @@ router.route('/')
 router.route('/me')
     .get(authorize(['customer']), getAllMyAddress)
 
-router.route('/:id')
-    .patch(authorize(['customer']), updateAddressUsersById)
+router.route('/update/:id')
+    .patch(authorize(['customer']), updateAddressUserByLoginUser)
 
 router.route('/:id/default')
     .patch(authorize(['customer']), setdefaultAddress)
