@@ -273,3 +273,107 @@ export const getOrderByIdByLoginUserService = async (orderId: number, loginUserI
 
     return response.rows[0]
 }
+
+export const createOrderFromCartService = async (
+    loginUserId: number
+): Promise<OrderResponse> => {
+    const client = await pool.connect()
+
+    try {
+        await client.query("BEGIN")
+
+        // ดึง cart items
+        const cartResult = await client.query(`
+            select 
+                ci.product_id,
+                ci.quantity
+            from carts c
+            join cart_items ci 
+            on ci.cart.id = c.id
+            where c.user_id = $1
+            `, [loginUserId])
+
+        const items = cartResult.rows
+
+        if (items.length === 0) {
+            throw new AppError("Cart is empty", 400)
+        }
+
+        const product_ids = [...new Set(items.map(i => i.product_id))]
+
+        // lock product rows
+        const productResult = await client.query(`
+            select id , price , name , reward_points , stock , is_active
+            from products
+            where id = any($1)
+            `, [product_ids])
+
+        const productMap = new Map(
+            productResult.rows.map(p => [p.id, p])
+        )
+
+        let totalPrice = 0
+        let totalPoints = 0
+
+        for (const item of items) {
+            const product = productMap.get(item.product_id)
+
+            if (!product.is_active) {
+                throw new AppError("Product inactive", 400)
+            }
+
+            if (product.stock < item.quantity) {
+                throw new AppError("insufficient stock", 400)
+            }
+
+            totalPrice += product.price * item.quantity
+            totalPoints += product.reward_points * item.quantity
+        }
+
+        // create order
+
+        const orderResult = await client.query(`
+            insert into orders
+            (user_id ,total_price , earned_points , status)
+            values($1,$2,$3,'pending')
+            returning *
+            `, [loginUserId, totalPrice, totalPoints])
+
+        const order = orderResult.rows[0]
+
+        // create order items
+        for (const item of items) {
+
+            const product = productMap.get(item.product_id)
+
+            await client.query(`
+                insert into order_items
+                (order_id , product_id , quantity, price , total_points)
+                values($1,$2,$3,$4)
+                `, [
+                order.id,
+                item.product_id,
+                item.quantity,
+                product.price,
+                product.reward_points * item.quantity
+            ])
+        }
+
+        // clear cart
+        await client.query(`
+            delete from cart_items
+            where card_id = (
+                select id from carts where user_id = $1
+            )
+            `, [loginUserId])
+
+        await client.query("COMMIT")
+
+        return order
+    } catch (err) {
+        await client.query("ROLLBACK")
+        throw err
+    } finally {
+        client.release()
+    }
+}

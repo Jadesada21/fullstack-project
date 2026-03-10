@@ -16,6 +16,7 @@ import paymentRoute from './users/payment.route'
 import redeemRoute from './users/redeem-route/redeem.route'
 import promoCodeRoute from './users/promo-route/promoCode.route'
 import promoCodeUsagesRoute from './users/promo-route/promoCodeUsages.route'
+import cartRoute from './users/cart.route'
 
 import adminStockMoveRoute from './admin/ad.stockmove.route'
 import adminAddressesRoute from './admin/ad.addresses.route'
@@ -57,6 +58,7 @@ router.use('/payments', paymentRoute)
 router.use('/redeems', redeemRoute)
 router.use('/promo-codes', promoCodeRoute)
 router.use('/promo-code-usages', promoCodeUsagesRoute)
+router.use('/carts', cartRoute)
 
 
 // authen admin
@@ -74,6 +76,7 @@ router.use('/admin/stock_moves', adminStockMoveRoute)
 router.use('/admin/redeems', adminRedeemRoute)
 router.use('/admin/promo-codes', adminPromoCodeRoute)
 router.use('/admin/promo-code-usages', adminPromoCodeUsagedRoute)
+
 
 
 export default router

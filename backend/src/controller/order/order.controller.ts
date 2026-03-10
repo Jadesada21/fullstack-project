@@ -7,7 +7,8 @@ import {
     cancelOrderService,
     getOrderByidService,
     getAllOrderByLoginUserService,
-    getOrderByIdByLoginUserService
+    getOrderByIdByLoginUserService,
+    createOrderFromCartService
 } from '../../service/order/order.service'
 
 
@@ -89,6 +90,19 @@ export const getOrderByIdByLoginUser = async (req: Request, res: Response, next:
 
         const data = await getOrderByIdByLoginUserService(orderId, loginUserId)
         return res.status(200).json({ status: "Success", data })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const createOrderFromCart = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const loginUserId = req.user!.id
+
+        const order = await createOrderFromCartService(loginUserId)
+
+        res.status(201).json({ Status: "Success", data: order })
     } catch (err) {
         next(err)
     }
