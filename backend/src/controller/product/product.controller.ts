@@ -4,7 +4,9 @@ import {
     getAllProductService,
     createProductService,
     getProductByIdService,
-    toggleProductActiveService
+    toggleProductActiveService,
+    restockProductByIdService,
+    getAllRestockProductHisService
 } from '../../service/product/product.service'
 
 import {
@@ -94,6 +96,43 @@ export const toggleProductActive = async (req: Request, res: Response, next: Nex
         const data = await toggleProductActiveService(id)
         return res.status(200).json({ status: "Success", data })
 
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const restockProductByid = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params
+        const { quantity } = req.body
+
+        const productId = Number(id)
+
+        if (isNaN(Number(productId))) {
+            throw new AppError("Invalid product id", 400)
+        }
+
+        const data = await restockProductByIdService(productId, quantity)
+        res.status(200).json({ status: "Success", data: data })
+
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const getAllRestockProductHis = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params
+
+        const productId = Number(id)
+
+        if (Number.isNaN(productId)) {
+            throw new AppError("Invalid product id ", 400)
+        }
+
+        const data = await getAllRestockProductHisService(productId)
+
+        res.status(200).json({ status: "Success", data: data })
     } catch (err) {
         next(err)
     }

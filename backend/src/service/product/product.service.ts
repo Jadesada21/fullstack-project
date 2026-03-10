@@ -152,3 +152,63 @@ export const toggleProductActiveService = async (id: number) => {
     }
     return response.rows[0]
 }
+
+export const restockProductByIdService = async (
+    productId: number,
+    quantity: number
+) => {
+    const client = await pool.connect()
+
+    try {
+        await client.query("BEGIN")
+
+        // check product exist
+        const productResult = await client.query(`
+            select id from products where id = $1
+            `, [productId])
+
+        if (productResult.rowCount === 0) {
+            throw new AppError("Product not found", 400)
+        }
+
+        // update product stock
+        await client.query(
+            `
+      update products
+      set stock = stock + $1
+      where id = $2
+      `,
+            [quantity, productId]
+        )
+
+        // insert stock movement
+        const movementResult = await client.query(`
+            insert into stock_movements
+            (item_type , item_id , quantity , movement_type , reference_type)
+            values('product' , $1 , $2 ,'restock' , 'admin')
+            returning *
+            `, [productId, quantity])
+
+        await client.query("COMMIT")
+
+        return movementResult.rows[0]
+    } catch (err) {
+        await client.query("ROLLBACK")
+        throw err
+    } finally {
+        client.release()
+    }
+}
+
+export const getAllRestockProductHisService = async (productId: number) => {
+    const response = await pool.query(`
+        select *
+            from stock_movements
+        where item_type = 'product'
+        and item_id = $1
+        and movement_type = 'restock'
+        order by created_at desc
+        `, [productId])
+
+    return response.rows
+}
