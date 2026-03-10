@@ -76,7 +76,7 @@ export default function OrderDetails() {
     return (
         <div>
             <div className="mt-10 bg-white p-8 rounded-xl shadow-sm max-w-3xl mb-10 h-full">
-                <h2 className="text-xl font-semibold mb-4">
+                <h2 className="text-xl font-semibold mb-4 font-baskerville">
                     Order {order.order_number}
                 </h2>
 
@@ -84,7 +84,7 @@ export default function OrderDetails() {
                     {order.status}
                 </p>
 
-                <p className="text-gray-500 mb-6">
+                <p className="text-gray-500 mb-6 font-baskerville">
                     {formatDate(order.created_at)}
                 </p>
 
@@ -92,26 +92,26 @@ export default function OrderDetails() {
                     {order.items.map((item) => (
                         <div
                             key={item.product_id}
-                            className="flex justify-between border-b pb-3"
+                            className="flex justify-between border-b pb-3 font-baskerville"
                         >
                             <div>
                                 <p className="font-medium">
                                     {item.product_name}
                                 </p>
 
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 font-baskerville">
                                     Qty: {item.quantity}
                                 </p>
                             </div>
 
-                            <p className="font-medium">
+                            <p className="font-medium font-baskerville">
                                 ฿ {formatPrice(item.price)}
                             </p>
                         </div>
                     ))}
                 </div>
 
-                <div className="flex justify-between mt-6 font-semibold text-lg">
+                <div className="flex justify-between mt-6 font-semibold text-lg font-baskerville">
 
                     <p>Total</p>
 

@@ -1,5 +1,5 @@
 export const shopLinkslist = [
     { label: "All products", to: "/shops" },
-    { label: "Best sellers", to: "/shop/best" },
+    { label: "Special", to: "/shop/special" },
 ];
 

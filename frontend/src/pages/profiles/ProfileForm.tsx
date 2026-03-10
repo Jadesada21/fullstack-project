@@ -98,7 +98,7 @@ export default function ProfileForm() {
             <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold font-baskerville"
                 >Personal Information ,
-                    <span className="text-red-500"> Point : {form.point}
+                    <span className="text-red-500 "> Point : {form.point}
 
                     </span>
                 </h2>
