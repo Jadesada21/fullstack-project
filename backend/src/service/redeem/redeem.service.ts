@@ -279,55 +279,105 @@ export const updateStatusRedeemService = async (
     }
 }
 
-export const getMyRedeemHistoryService = async (
-    loginUserId: number
-) => {
-    const response = await pool.query(
-        `select * 
-        from redeems
-        where user_id = $1
-        `, [loginUserId]
-    )
 
-    if (response.rowCount === 0) {
-        throw new AppError("Redeem not found", 404)
-    }
+export const getAllRedeemsByLoginUserService = async (loginUserId: number) => {
 
-    return response.rows
-}
-
-export const getRedeemByUserIdService = async (
-    userId: number
-) => {
     const response = await pool.query(`
-         select 
+        select 
             r.id as redeem_id,
             r.redeem_number,
             r.status,
             r.total_points_used,
             r.created_at,
-            coalesce(
-                json_agg(
-                    json_build_object(
-                        'reward_id', rw.id,
-                        'name', rw.name,
-                        'quantity', ri.quantity,
-                        'points_per_item', ri.points_per_item
-                    )
-                ) filter (where ri.id is not null),
-                '[]'
-            ) as items
+
+        coalesce(
+            json_agg(
+                json_build_object(
+                    'reward_id', rw.id,
+                    'name', rw.name,
+                    'quantity', ri.quantity,
+                    'points_per_item', ri.points_per_item,
+                    'total_points_used', ri.total_points_used
+                )
+            ) filter (where ri.id is not null),
+            '[]'
+        ) as items
+
         from redeems r
+
         left join redeem_items ri
             on ri.redeem_id = r.id
+
         left join rewards rw
             on rw.id = ri.reward_id
+
         where r.user_id = $1
-        group by r.id
+
+        group by
+            r.id,
+            r.redeem_number,
+            r.status,
+            r.total_points_used,
+            r.created_at
+
         order by r.created_at desc
-        `, [userId])
+    `, [loginUserId])
 
     return response.rows
+}
+
+export const getRedeemByIdByLoginUserService = async (
+    redeemId: number,
+    loginUserId: number
+) => {
+
+    const response = await pool.query(`
+        select 
+            r.id as redeem_id,
+            r.redeem_number,
+            r.status,
+            r.total_points_used,
+            r.created_at,
+
+        json_agg(
+            json_build_object(
+                'reward_id', rw.id,
+                'reward_name', rw.name,
+                'image_url', riw.image_url,
+                'quantity', ri.quantity,
+                'points_per_item', ri.points_per_item,
+                'total_points_used', ri.total_points_used
+            )
+        ) as items
+
+        from redeems r
+
+        join redeem_items ri
+            on ri.redeem_id = r.id
+
+        join rewards rw
+            on rw.id = ri.reward_id
+
+        left join reward_images riw
+            on riw.reward_id = rw.id
+            and riw.is_primary = true
+
+        where r.id = $1
+        and r.user_id = $2
+
+        group by
+            r.id,
+            r.redeem_number,
+            r.status,
+            r.total_points_used,
+            r.created_at
+    `, [redeemId, loginUserId])
+
+    if (response.rowCount === 0) {
+        throw new AppError("Redeem not found", 404)
+    }
+
+    return response.rows[0]
 }
 
 export const adminGetRedeemByIdService = async (

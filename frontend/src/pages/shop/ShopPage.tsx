@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom";
-import { FilterSidebar } from './FilterSidebar'
-import { ProductCard } from "./ShopCard";
+import { FilterSidebar } from '../../components/FilterSidebar'
+import RoastLevelFilter from "./filter-details/RoastlevelFilter"
+import PriceFilter from "./filter-details/PriceFilter"
+import { ItemCard } from "../../components/ItemCard";
 import { api } from "../../AxiosInstance"
 
 interface Product {
@@ -19,6 +21,7 @@ export default function ShopPage() {
 
     const [products, setProducts] = useState<Product[]>([])
 
+
     const price = searchParams.get("price") || "any"
     const roast_level = searchParams.get("roast_level") ?? undefined
 
@@ -35,6 +38,21 @@ export default function ShopPage() {
     useEffect(() => {
         fetchProducts()
     }, [searchParams])
+
+    const filters = [
+        {
+            key: "roast_level",
+            label: "Roast Level",
+            component: RoastLevelFilter
+        },
+        {
+            key: "price",
+            label: "Price",
+            component: PriceFilter
+        }
+    ]
+
+
 
 
     return (
@@ -87,23 +105,29 @@ export default function ShopPage() {
                     {/* Filter Sidebar */}
                     <div className="w-75 font-baskerville">
                         <FilterSidebar
+                            filters={filters}
                             searchParams={searchParams}
                             setSearchParams={setSearchParams}
                         />
                     </div>
 
                     {/* Product Grid */}
-                    <div className="grid grid-cols-4 gap-10 font-baskerville md:grid-cols-3">
+                    <div className="grid xl:grid-cols-4 gap-10 font-baskerville md:grid-cols-3">
                         {products.map((product) => (
                             <Link key={product.id} to={`/shops/${product.id}`}>
-                                <ProductCard products={product} />
+                                <ItemCard
+                                    variant="product"
+                                    image={product.image_url}
+                                    name={product.name}
+                                    subtitle={product.taste}
+                                    points={product.reward_points}
+                                    price={product.price}
+                                />
                             </Link>
                         ))}
                     </div>
                 </section>
             </main>
-
-
         </>
     )
 }

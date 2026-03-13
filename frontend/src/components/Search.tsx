@@ -45,9 +45,9 @@ export default function Search({ open, setOpen }: SearchProps) {
     if (!open) return null
 
     return (
-        <div className="fixed inset-0 bg-black/40 flex justify-center pt-20 z-50 pb-20">
+        <div className="fixed inset-0 bg-black/40 flex justify-center pt-20 z-50">
 
-            <div className="bg-white w-225 rounded-lg p-6 shadow-xl">
+            <div className="bg-white w-225 rounded-lg p-6 shadow-xl h-130">
 
                 {/* Search bar */}
                 <div className="flex items-center border-b pb-3 mb-6">

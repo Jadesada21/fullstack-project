@@ -120,7 +120,7 @@ export default function ProfilesPage() {
 
 
             {/* content */}
-            <main className="flex-1 bg-gray-100 md:pl-35 pt-20 pl-50">
+            <main className="flex-1 bg-gray-100 md:pl-35 xl:pl-65  pt-20 ">
 
                 <div className="text-2xl font-bold font-baskerville mb-10">
                     Hi, {capitalize(user?.username)}!

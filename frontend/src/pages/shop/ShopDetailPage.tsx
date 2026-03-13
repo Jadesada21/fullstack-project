@@ -4,6 +4,7 @@ import { api } from "../../AxiosInstance"
 import { useCart } from "../../context/CartContext"
 import OrderDetailModal from "../order/OrderDetailModal"
 import { useAuth } from "../../context/AuthContext"
+import BoxModal from "../login-signup/BoxModal"
 
 
 interface Product {
@@ -11,6 +12,7 @@ interface Product {
     name: string
     description: string
     price: number
+    reward_points: number
     image_url: string
     roast_level: string
     category: string
@@ -45,7 +47,6 @@ export default function ShopDetailPage() {
 
     const [open, setOpen] = useState(false)
     const [order, setOrder] = useState<Order | null>(null)
-
     const [openLoginModal, setOpenLoginModal] = useState(false)
 
     const fetchProduct = async () => {
@@ -175,6 +176,10 @@ export default function ShopDetailPage() {
                         ฿ {product.price}
                     </p>
 
+                    <p className="text-2xl mt-4 font-medium">
+                        {product.reward_points} pts
+                    </p>
+
                     <p className="mt-6 leading-relaxed">
                         {product.taste}
                     </p>
@@ -244,6 +249,14 @@ export default function ShopDetailPage() {
                         />
                     )}
                 </div>
+
+                {openLoginModal && (
+                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                        <div className="bg-white p-6 rounded-xl w-105">
+                            <BoxModal close={() => setOpenLoginModal(false)} />
+                        </div>
+                    </div>
+                )}
             </div>
         </div >
     )

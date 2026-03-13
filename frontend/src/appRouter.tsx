@@ -26,6 +26,9 @@ import ShopDetailPage from "./pages/shop/ShopDetailPage"
 import PaymentPage from "./pages/payment/PaymentPage";
 import PremiumPage from "./pages/shop/PremiumPage"
 
+import RewardDetailPage from "./pages/reward/RewardDetailPage";
+
+
 import AdminPage from "./pages/AdminPage";
 import OrderDetails from "./pages/profiles/details/OrderDetailPage";
 
@@ -70,6 +73,8 @@ export default function AppRouter() {
                         <Route path="/shops/special" element={<PremiumPage />} />
 
                         <Route path="/rewards" element={<RewardPage />} />
+                        <Route path='/rewards/:id' element={<RewardDetailPage />} />
+
                         <Route path="/about-us" element={<AboutUsPage />} />
                         <Route path="/contact-us" element={<ContactUsPage />} />
                         <Route path="/payments/:id" element={<PaymentPage />} />

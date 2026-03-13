@@ -110,6 +110,8 @@ export const getRewardByIdService = async (id: number, role?: string) => {
         r.id,
         r.name,
         r.points_required,
+        r.description,
+        r.short_description,
         ri.image_url
         from rewards r
         left join reward_images ri

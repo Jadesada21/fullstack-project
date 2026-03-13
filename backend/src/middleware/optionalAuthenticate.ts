@@ -26,7 +26,10 @@ export const optionalAuthenticate = (req: Request, res: Response, next: NextFunc
         req.user = {
             id: decoded.id,
             role: decoded.role
+
         }
+
+
         next()
     } catch (err) {
         next(new AppError("Invalid token", 401))

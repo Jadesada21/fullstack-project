@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom";
-import { FilterSidebar } from './FilterSidebar'
-import { ProductCard } from "./ShopCard";
+import { FilterSidebar } from '../../components/FilterSidebar'
+import RoastLevelFilter from "./filter-details/RoastlevelFilter"
+import PriceFilter from "./filter-details/PriceFilter"
+import { ItemCard } from "../../components/ItemCard";
 import { api } from "../../AxiosInstance"
 
 interface Product {
@@ -17,29 +19,42 @@ export default function PremiumPage() {
 
     const [searchParams, setSearchParams] = useSearchParams()
 
-    const [products, setProducts] = useState<Product[]>([])
+    const [Premiums, setPremiums] = useState<Product[]>([])
 
     const price = searchParams.get("price") || "any"
     const roast_level = searchParams.get("roast_level") ?? undefined
 
-    const fetchProducts = async () => {
+    const fetchPremiums = async () => {
         const res = await api.get("/products", {
             params: {
                 price,
                 roast_level
             }
         })
-        setProducts(res.data.data)
+        setPremiums(res.data.data)
     }
 
     useEffect(() => {
-        fetchProducts()
+        fetchPremiums()
     }, [searchParams])
 
 
+    const filters = [
+        {
+            key: "roast_level",
+            label: "Roast Level",
+            component: RoastLevelFilter
+        },
+        {
+            key: "price",
+            label: "Price",
+            component: PriceFilter
+        }
+    ]
+
     return (
         <>
-            <main className="w-full h-full xl:px-60 py-15 mb-10 md:px-30 font-baskerville">
+            <main className="w-full h-full px-60 py-15 mb-10 md:px-30 font-baskerville">
                 {/* Upper */}
                 <div className="flex  items-center">
                     <Link to='/'>Home</Link>
@@ -87,6 +102,7 @@ export default function PremiumPage() {
                     {/* Filter Sidebar */}
                     <div className="w-75 ">
                         <FilterSidebar
+                            filters={filters}
                             searchParams={searchParams}
                             setSearchParams={setSearchParams}
                         />
@@ -96,7 +112,12 @@ export default function PremiumPage() {
                     {/* <div className="grid xl:grid-cols-4 gap-10  md:grid-cols-3">
                         {products.map((product) => (
                             <Link key={product.id} to={`/shops/${product.id}`}>
-                                <ProductCard products={product} />
+                                 <ItemCard
+                                    image={product.image_url}
+                                    name={product.name}
+                                    subtitle={product.taste}
+                                    price={product.price}
+                                />
                             </Link>
                         ))}
                     </div> */}
