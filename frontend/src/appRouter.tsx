@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { useAuth } from './context/AuthContext'
+import { useState } from 'react'
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
@@ -7,7 +8,7 @@ import AdminRoute from "./routes/AdminRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop"
-
+import Search from "./components/Search";
 
 
 import TermPage from "./pages/Term";
@@ -41,6 +42,7 @@ import PaymentDetails from "./pages/profiles/details/PaymentDetailPage";
 export default function AppRouter() {
     const { loading } = useAuth()
 
+    const [openSearch, setOpenSearch] = useState(false)
 
 
     if (loading) {
@@ -52,7 +54,12 @@ export default function AppRouter() {
             <ScrollToTop />
             <div className="min-h-screen flex flex-col bg-[#f7f5ef]">
 
-                <Navbar />
+                <Navbar setOpenSearch={setOpenSearch} />
+
+                <Search
+                    open={openSearch}
+                    setOpen={setOpenSearch}
+                />
 
                 <main className="flex-1">
                     <Routes>

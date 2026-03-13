@@ -26,7 +26,7 @@ export default function ProfilesPage() {
 
             {/* sidebar */}
 
-            <div className="pb-6 w-75 xl:w-90 bg-white/60 flex flex-col border-r border-gray-200 pt-20 items-center space-y-4">
+            <div className="pb-6 md:w-75 w-90 bg-white/60 flex flex-col border-r border-gray-200 pt-20 items-center space-y-4">
 
                 <button
                     onClick={() => {
@@ -120,7 +120,7 @@ export default function ProfilesPage() {
 
 
             {/* content */}
-            <main className="flex-1 bg-gray-100 pl-30 pt-20 xl:pl-50">
+            <main className="flex-1 bg-gray-100 md:pl-35 pt-20 pl-50">
 
                 <div className="text-2xl font-bold font-baskerville mb-10">
                     Hi, {capitalize(user?.username)}!

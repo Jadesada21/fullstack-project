@@ -39,7 +39,7 @@ export default function ShopPage() {
 
     return (
         <>
-            <main className="w-full h-full xl:px-60 py-15 mb-10 md:px-30">
+            <main className="w-full h-full px-60 py-15 mb-10 md:px-30">
                 {/* Upper */}
                 <div className="flex font-baskerville items-center">
                     <Link to='/'>Home</Link>
@@ -93,7 +93,7 @@ export default function ShopPage() {
                     </div>
 
                     {/* Product Grid */}
-                    <div className="grid xl:grid-cols-4 gap-10 font-baskerville md:grid-cols-3">
+                    <div className="grid grid-cols-4 gap-10 font-baskerville md:grid-cols-3">
                         {products.map((product) => (
                             <Link key={product.id} to={`/shops/${product.id}`}>
                                 <ProductCard products={product} />

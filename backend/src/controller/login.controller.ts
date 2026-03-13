@@ -36,7 +36,7 @@ export const getProductBySearch = async (req: Request, res: Response, next: Next
     try {
         const keyword = req.query.keyword as string
 
-        if (!keyword) {
+        if (!keyword?.trim()) {
             return res.json({
                 data: []
             })

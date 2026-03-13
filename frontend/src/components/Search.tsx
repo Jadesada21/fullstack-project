@@ -1,90 +1,117 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { api } from '../AxiosInstance'
+import { Link } from 'react-router-dom'
 
 
-export default function Search() {
-    const [open, setOpen] = useState(true)
+interface Product {
+    id: number
+    name: string
+    price: number
+    image_url: string
+}
+
+interface SearchProps {
+    open: boolean
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export default function Search({ open, setOpen }: SearchProps) {
+
     const [keyword, setKeyword] = useState("")
+    const [products, setProducts] = useState<Product[]>([])
 
     const showProducts = keyword.trim() !== ""
+
+    useEffect(() => {
+
+        if (!keyword.trim()) {
+            setProducts([])
+            return
+        }
+
+        const fetchProducts = async () => {
+            try {
+                const res = await api.get(`/products/search?keyword=${keyword}`)
+                setProducts(res.data.data)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        fetchProducts()
+
+    }, [keyword])
 
     if (!open) return null
 
     return (
-        <div>
+        <div className="fixed inset-0 bg-black/40 flex justify-center pt-20 z-50 pb-20">
 
-            {/* Search button */}
-            <button onClick={() => setOpen(true)}>
-                🔍 Search
-            </button>
+            <div className="bg-white w-225 rounded-lg p-6 shadow-xl">
 
-            {/* Overlay */}
-            {open && (
-                <div className="fixed inset-0 bg-black/40 flex justify-center pt-20 z-50">
+                {/* Search bar */}
+                <div className="flex items-center border-b pb-3 mb-6">
 
-                    <div className="bg-white w-[900px] rounded-lg p-6 shadow-xl">
+                    <input
+                        type="text"
+                        placeholder="Search coffee..."
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        className="w-full outline-none text-lg"
+                    />
 
-                        {/* Search bar */}
-                        <div className="flex items-center border-b pb-3 mb-6">
+                    <button
+                        onClick={() => setOpen(false)}
+                        className="text-xl"
+                    >
+                        ✕
+                    </button>
 
-                            <input
-                                type="text"
-                                placeholder="Search coffee..."
-                                value={keyword}
-                                onChange={(e) => setKeyword(e.target.value)}
-                                className="w-full outline-none text-lg"
-                            />
+                </div>
 
-                            <button
-                                onClick={() => setOpen(false)}
-                                className="text-xl"
-                            >
-                                ✕
-                            </button>
+                {/* Product Section */}
+                {showProducts && (
+
+                    <div>
+
+                        <p className="text-sm text-gray-500 mb-4">
+                            PRODUCTS
+                        </p>
+
+                        <div className="grid grid-cols-3 gap-8">
+
+                            {products.map((p) => (
+                                <Link
+                                    to={`/shops/${p.id}`}
+                                    key={p.id}
+                                    className="text-center hover:scale-105 transition"
+                                    onClick={() => setOpen(false)}
+                                >
+
+                                    <img
+                                        src={p.image_url}
+                                        className="w-28 mx-auto mb-3"
+                                    />
+
+                                    <p className="font-medium">
+                                        {p.name}
+                                    </p>
+
+                                    <p className="text-gray-500 text-sm">
+                                        ฿ {p.price}
+                                    </p>
+
+                                </Link>
+                            ))}
 
                         </div>
 
-                        {/* Product Section */}
-                        {keyword && (
-                            <div>
-
-                                <p className="text-sm text-gray-500 mb-4">
-                                    PRODUCTS
-                                </p>
-
-                                <div className="grid grid-cols-3 gap-8">
-
-                                    {products.map((p) => (
-                                        <div
-                                            key={p.id}
-                                            className="text-center hover:scale-105 transition"
-                                        >
-
-                                            <img
-                                                src={p.image}
-                                                className="w-28 mx-auto mb-3"
-                                            />
-
-                                            <p className="font-medium">
-                                                {p.name}
-                                            </p>
-
-                                            <p className="text-gray-500 text-sm">
-                                                ${p.price}
-                                            </p>
-
-                                        </div>
-                                    ))}
-
-                                </div>
-
-                            </div>
-                        )}
-
                     </div>
 
-                </div>
-            )}
+                )}
 
-        </div>
+            </div>
+
+        </div >
     )
 }

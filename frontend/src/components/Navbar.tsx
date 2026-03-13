@@ -11,8 +11,10 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from "../context/CartContext"
 import CartDrawer from './cart/CartDrawer';
 
-export default function Navbar() {
+export default function Navbar({ setOpenSearch }: any) {
+
     const [openBoxModal, setOpenBoxModal] = useState(false)
+
 
     const [openCart, setOpenCart] = useState(false)
 
@@ -28,6 +30,7 @@ export default function Navbar() {
             setOpenBoxModal(true)
         }
     }
+
 
     const totalItems = cart.reduce(
         (sum, item) => sum + item.quantity,
@@ -66,7 +69,7 @@ export default function Navbar() {
             </div>
 
             <div className="flex justify-center gap-15  items-center mr-20">
-                <button>
+                <button onClick={() => setOpenSearch(true)}>
                     <img src={searchIcon} alt="search" className="w-9" />
                 </button>
 

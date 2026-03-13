@@ -53,9 +53,17 @@ export const loginService = async (username: string, password: string): Promise<
 
 export const getProductBySearchService = async (keyword: string) => {
     const response = await pool.query(`
-        select * 
-        from products
-        where name ilike '%' || $1 || '%'
+        select distinct on (p.id)
+            p.id,
+            p.name,
+            p.price,
+            pi.image_url
+        from products p
+        left join product_images pi
+            on p.id = pi.product_id
+            and pi.is_primary = true
+        where p.name ilike '%' || $1 || '%'
+        limit 6
         `, [keyword])
 
     return response.rows

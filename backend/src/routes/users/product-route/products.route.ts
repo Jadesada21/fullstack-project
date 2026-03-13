@@ -5,6 +5,8 @@ import {
     getProductById
 } from '../../../controller/product/product.controller'
 
+import { getProductBySearch } from '../../../controller/login.controller'
+
 import imageProductRoute from './imageProduct.route'
 
 import { optionalAuthenticate } from '../../../middleware/optionalAuthenticate'
@@ -16,8 +18,13 @@ router.route('/')
     .get(optionalAuthenticate, getAllProduct)
 
 
+router.route('/search')
+    .get(getProductBySearch)
+
+
 router.route('/:id')
     .get(getProductById)
+
 
 
 // ************************ Image_product
