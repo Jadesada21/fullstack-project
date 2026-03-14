@@ -7,11 +7,11 @@ import {
     updatePrimaryImagesByProductId,
     deleteProductImagesByProductId,
     updateSortOrderByProductId
-} from '../../controller/product/image.controller'
+} from '../../../controller/product/image.controller'
 
 
-import { authorize } from '../../middleware/authorize'
-import upload from '../../middleware/upload'
+import { authorize } from '../../../middleware/authorize'
+import upload from '../../../middleware/upload'
 
 
 router.route('/')

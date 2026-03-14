@@ -45,6 +45,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminOrderDetails from "./pages/admin/details/AdminOrderDetails";
+import AdminProducts from "./pages/admin/AdminProducts";
 
 
 
@@ -138,9 +139,9 @@ export default function AppRouter() {
                     <Route index element={<AdminDashboard />} />
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="orders/detail/:id" element={<AdminOrderDetails />} />
-                    {/* <Route path="products" element={<AdminProducts />} />
-                    <Route path="rewards" element={<AdminRewards />} />
-                    <Route path="users" element={<AdminUsers />} /> */}
+                    <Route path="products" element={<AdminProducts />} />
+                    {/* <Route path="rewards" element={<AdminRewards />} />
+                     <Route path="users" element={<AdminUsers />} />  */}
                 </Route>
 
 

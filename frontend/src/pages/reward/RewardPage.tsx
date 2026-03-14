@@ -102,7 +102,7 @@ export default function ShopPage() {
                     </div>
 
                     {/* Reward Grid */}
-                    <div className="grid xl:grid-cols-4 gap-10 font-baskerville md:grid-cols-3">
+                    <div className="grid gap-10 font-baskerville grid-cols-3">
                         {rewards.map((reward) => (
                             <Link key={reward.id} to={`/rewards/${reward.id}`}>
                                 <ItemCard

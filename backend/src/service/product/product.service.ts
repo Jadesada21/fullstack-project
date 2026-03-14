@@ -8,13 +8,22 @@ import {
 
 import { Role } from '../../types/users.type'
 
-export const getAllProductService = async (
+export const getAllProductService = async ({
+    role,
+    price = 'any',
+    roast_level,
+    page = 1
+}: {
     role?: Role | 'guest',
-    price: string = 'any',
+    price: string
     roast_level?: string | undefined
-) => {
+    page: number,
+}) => {
+    const limit = 10
+    const offset = (page - 1) * limit
+
     if (role === 'admin') {
-        const sql = ` select 
+        const response = await pool.query(` select 
         p.id,
         p.name,
         p.description,
@@ -37,8 +46,9 @@ export const getAllProductService = async (
         group by product_id 
     ) img on img.product_id = p.id
     order by p.created_at desc
-        `
-        const response = await pool.query(sql)
+    limit $1 offset $2
+        `, [limit, offset])
+
         return response.rows
     } else {
         let sql = `
@@ -94,7 +104,9 @@ export const getAllProductService = async (
             sql += `and ${conditions.join(" and ")}`
         }
 
-        sql += ` order by p.created_at desc`
+        sql += ` order by p.created_at desc limit $${paramIndex} offset $${paramIndex + 1}`
+
+        values.push(limit, offset)
 
         const response = await pool.query(sql, values)
 
@@ -107,7 +119,7 @@ export const createProductService = async (
     body: CreateProductInput
 ): Promise<ProductResponse> => {
 
-    const { name, description, price, stock, reward_points, taste, category_id, roast_level } = body
+    const { name, description, taste, roast_level, bag_size, price, stock, reward_points, category_id } = body
 
     const checkCategory = await pool.query(`
     select id from categories where id = $1    
@@ -119,10 +131,10 @@ export const createProductService = async (
 
     const response = await pool.query(`
         insert into products 
-        (name , description , price , stock ,reward_points, taste, category_id , roast_level)
-        values($1,$2,$3,$4,$5,$6,$7,$8)
+        (name, description, taste, roast_level, bag_size, price, stock, reward_points, category_id)
+        values($1,$2,$3,$4,$5,$6,$7,$8,$9)
         returning *`,
-        [name, description, price, stock, reward_points, taste, category_id, roast_level]
+        [name, description, taste, roast_level, bag_size, price, stock, reward_points, category_id]
     )
     return response.rows[0]
 }

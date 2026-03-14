@@ -8,6 +8,7 @@ export interface ProductResponse {
     stock: number
     taste: string
     category_id: number
+    bag_size: string
     roast_level: RoastLevel
     is_active: boolean
     created_at: string
@@ -23,5 +24,6 @@ export interface CreateProductInput {
     reward_points: number
     category_id: number
     roast_level: RoastLevel
+    bag_size: string
 }
 

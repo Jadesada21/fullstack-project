@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom";
 import { FilterSidebar } from '../../components/FilterSidebar'
-import RoastLevelFilter from "./filter-details/RoastlevelFilter"
-import PriceFilter from "./filter-details/PriceFilter"
+import RoastLevelFilter from "./Filter-details/RoastlevelFilter"
+import PriceFilter from "./Filter-details/PriceFilter"
 import { ItemCard } from "../../components/ItemCard";
 import { api } from "../../AxiosInstance"
 
@@ -21,15 +21,18 @@ export default function ShopPage() {
 
     const [products, setProducts] = useState<Product[]>([])
 
+    const [page, setPage] = useState(1)
+
 
     const price = searchParams.get("price") || "any"
     const roast_level = searchParams.get("roast_level") ?? undefined
 
     const fetchProducts = async () => {
-        const res = await api.get("/products", {
+        const res = await api.get(`/products`, {
             params: {
                 price,
-                roast_level
+                roast_level,
+                page
             }
         })
         setProducts(res.data.data)
@@ -37,7 +40,7 @@ export default function ShopPage() {
 
     useEffect(() => {
         fetchProducts()
-    }, [searchParams])
+    }, [searchParams, page])
 
     const filters = [
         {
@@ -57,9 +60,9 @@ export default function ShopPage() {
 
     return (
         <>
-            <main className="w-full h-full px-60 py-15 mb-10 md:px-30">
+            <main className="w-full h-full  py-15 mb-10 px-30 font-baskerville">
                 {/* Upper */}
-                <div className="flex font-baskerville items-center">
+                <div className="flex items-center">
                     <Link to='/'>Home</Link>
                     <img src="https://res.cloudinary.com/dbraczg5a/image/upload/v1773165802/right-arrow-svgrepo-com_mhdnwz.svg"
                         alt="right-vector"
@@ -67,11 +70,11 @@ export default function ShopPage() {
                     <p className="pl-2 font-semibold">All Specialty Coffee</p>
                 </div>
 
-                <div className="mt-40 text-6xl font-baskerville">
+                <div className="mt-40 text-6xl">
                     All Specialty Coffee
                 </div>
 
-                <div className="mt-6 font-baskerville">
+                <div className="mt-6">
                     Explore our collection of specialty coffee beans, carefully sourced and roasted fresh for the perfect cup.
                 </div>
 
@@ -84,18 +87,39 @@ export default function ShopPage() {
                                     className="w-10 h-10"
                                 />
 
-                                <p className="text-xl font-semibold font-baskerville">Filters</p>
+                                <p className="text-xl font-semibold">Filters</p>
 
                             </div>
 
                             <button
                                 onClick={() => setSearchParams({})}
-                                className="text-xl font-semibold font-baskerville text-[#f45048] underline cursor-pointer"
+                                className="text-xl font-semibold text-[#f45048] underline cursor-pointer"
                             >
                                 Clear
                             </button>
                         </div>
 
+
+                        <div className="flex gap-6 pt-4 mr-18">
+
+                            <button
+                                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                                className="px-4 py-2 bg-gray-200 rounded"
+                            >
+                                Prev
+                            </button>
+
+                            <span className="px-4 py-2 flex items-center">
+                                {page}
+                            </span>
+
+                            <button
+                                onClick={() => setPage(prev => prev + 1)}
+                                className="px-4 py-2 bg-gray-200 rounded"
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -103,7 +127,7 @@ export default function ShopPage() {
                 <section className="flex gap-12 pt-8">
 
                     {/* Filter Sidebar */}
-                    <div className="w-75 font-baskerville">
+                    <div className="w-75">
                         <FilterSidebar
                             filters={filters}
                             searchParams={searchParams}
@@ -112,7 +136,7 @@ export default function ShopPage() {
                     </div>
 
                     {/* Product Grid */}
-                    <div className="grid xl:grid-cols-4 gap-10 font-baskerville md:grid-cols-3">
+                    <div className="grid gap-10 grid-cols-3">
                         {products.map((product) => (
                             <Link key={product.id} to={`/shops/${product.id}`}>
                                 <ItemCard
@@ -127,7 +151,7 @@ export default function ShopPage() {
                         ))}
                     </div>
                 </section>
-            </main>
+            </main >
         </>
     )
 }

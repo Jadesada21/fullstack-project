@@ -24,7 +24,9 @@ export const getAllProduct = async (req: Request, res: Response, next: NextFunct
         const price = req.query.price as string
         const roast_level = req.query.roast_level as string
 
-        const data = await getAllProductService(role, price, roast_level)
+        const page = Number(req.query.page) || 1
+
+        const data = await getAllProductService({ role, price, roast_level, page })
         return res.status(200).json({ data })
     } catch (err) {
         next(err)
@@ -33,17 +35,18 @@ export const getAllProduct = async (req: Request, res: Response, next: NextFunct
 
 export const createProduct = async (req: Request<{}, {}, CreateProductInput>, res: Response, next: NextFunction) => {
     try {
-        const { name, description, price, stock, reward_points, taste, category_id, roast_level } = req.body
+        const { name, description, taste, roast_level, bag_size, price, stock, reward_points, category_id } = req.body
 
         if (
             name == null ||
             description == null ||
+            taste == null ||
+            roast_level == null ||
+            bag_size == null ||
             price == null ||
             stock == null ||
             reward_points == null ||
-            taste == null ||
-            category_id == null ||
-            roast_level == null
+            category_id == null
         ) {
             throw new AppError("Missing required field", 400)
         }
@@ -51,10 +54,11 @@ export const createProduct = async (req: Request<{}, {}, CreateProductInput>, re
         if (
             typeof name !== "string" || name.trim() === "" ||
             typeof description !== "string" || description.trim() === "" ||
+            typeof taste !== "string" || taste.trim() === "" ||
+            typeof bag_size !== "string" || bag_size.trim() === "" ||
             typeof price !== "number" || price <= 0 ||
             typeof stock !== "number" || !Number.isInteger(stock) || stock < 0 ||
             typeof reward_points !== "number" || !Number.isInteger(reward_points) || reward_points <= 0 ||
-            typeof taste !== "string" || taste.trim() === "" ||
             typeof category_id !== "number" || !Number.isInteger(category_id) || category_id <= 0
         ) {
             throw new AppError("Invalid input", 400)

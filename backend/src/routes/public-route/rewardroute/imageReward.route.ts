@@ -7,11 +7,11 @@ import {
     updatePrimaryImagesByRewardId,
     deleteRewardImagesByRewardId,
     updateSortOrderByRewardId
-} from '../../controller/reward/image.controller'
+} from '../../../controller/reward/image.controller'
 
 
-import { authorize } from '../../middleware/authorize'
-import upload from '../../middleware/upload'
+import { authorize } from '../../../middleware/authorize'
+import upload from '../../../middleware/upload'
 
 
 router.route('/')
